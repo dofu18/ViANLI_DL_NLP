@@ -6,6 +6,7 @@ Phân loại 3 lớp cho cặp (premise, hypothesis): `entailment` / `neutral` /
 - **Dataset:** [uitnlp/ViANLI](https://huggingface.co/datasets/uitnlp/ViANLI) — bộ adversarial NLI tiếng Việt của UIT-NLP.
 - **Nền tảng huấn luyện:** Kaggle Notebooks (GPU T4 x2 / P100).
 - **Kế hoạch chi tiết + checklist:** [`PLAN.md`](PLAN.md).
+- **Hướng dẫn chạy trên Kaggle:** [`KAGGLE.md`](KAGGLE.md).
 
 ## Bốn mô hình (theo yêu cầu đề bài)
 
