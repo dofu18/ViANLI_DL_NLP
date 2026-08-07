@@ -5,6 +5,11 @@ outputs/checkpoints/*
 !outputs/checkpoints/.gitkeep
 outputs/logs/*
 !outputs/logs/.gitkeep
+# ...nhưng GIỮ số liệu kết quả: notebook 05 và báo cáo cần các file này
+!outputs/logs/*.json
+!outputs/logs/*.csv
+!outputs/logs/predictions/
+!outputs/logs/predictions/*.npy
 
 # Bí mật — TUYỆT ĐỐI không commit (checklist tái lập, Phụ lục A)
 kaggle.json

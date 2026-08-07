@@ -1,0 +1,110 @@
+{
+  "seed": 42,
+  "columns": {
+    "premise": "premise",
+    "hypothesis": "hypothesis",
+    "label": "label"
+  },
+  "split_sizes": {
+    "train": 8012,
+    "validation": 1000,
+    "test": 1000
+  },
+  "sanity": {
+    "train": {
+      "n": 8012,
+      "premise_rỗng": 0,
+      "hypothesis_rỗng": 0,
+      "dòng_trùng": 0,
+      "cặp_trùng_khác_nhãn": 0
+    },
+    "validation": {
+      "n": 1000,
+      "premise_rỗng": 0,
+      "hypothesis_rỗng": 0,
+      "dòng_trùng": 0,
+      "cặp_trùng_khác_nhãn": 0
+    },
+    "test": {
+      "n": 1000,
+      "premise_rỗng": 0,
+      "hypothesis_rỗng": 0,
+      "dòng_trùng": 1,
+      "cặp_trùng_khác_nhãn": 0
+    }
+  },
+  "label_distribution": {
+    "train": {
+      "entailment": 0.3264,
+      "neutral": 0.365,
+      "contradiction": 0.3087
+    },
+    "validation": {
+      "entailment": 0.334,
+      "neutral": 0.333,
+      "contradiction": 0.333
+    },
+    "test": {
+      "entailment": 0.334,
+      "neutral": 0.333,
+      "contradiction": 0.333
+    }
+  },
+  "majority_baseline_test": 0.334,
+  "length_p95_words": {
+    "premise": 51.0,
+    "hypothesis": 28.0
+  },
+  "mean_length_by_label": {
+    "len_p": {
+      "entailment": 29.07,
+      "neutral": 28.78,
+      "contradiction": 29.12
+    },
+    "len_h": {
+      "entailment": 15.67,
+      "neutral": 17.85,
+      "contradiction": 16.37
+    }
+  },
+  "negation_rate_by_label": {
+    "entailment": 0.1388,
+    "neutral": 0.1207,
+    "contradiction": 0.1698
+  },
+  "lexical_overlap_by_label": {
+    "entailment": 0.1843,
+    "neutral": 0.2721,
+    "contradiction": 0.2746
+  },
+  "top_pmi_tokens": {
+    "entailment": "thập, cái, gần, giữa, nửa, ta, trò, phần, vị, loài, pháp, đặc",
+    "neutral": "đẹp, chóng, hiểm, kiếm, hút, càng, gồm, vì, phục, duy, môn, sắp",
+    "contradiction": "chẳng, gì, cấm, cứ, nhằm, đăng, nào, 26, 000, lái, thiện, đốc"
+  },
+  "leakage": {
+    "overlap_pairs_train_test": 2,
+    "overlap_premises_train_test": 865,
+    "train_vs_validation_cặp_trùng": 0,
+    "train_vs_test_cặp_trùng": 2,
+    "validation_vs_test_cặp_trùng": 0
+  },
+  "baselines": {
+    "majority": {
+      "accuracy": 0.334,
+      "macro_f1": null
+    },
+    "hypothesis_only": {
+      "accuracy": 0.318,
+      "macro_f1": 0.31003739090370486
+    },
+    "premise_only": {
+      "accuracy": 0.039,
+      "macro_f1": 0.035742325546275
+    },
+    "full_tfidf": {
+      "accuracy": 0.105,
+      "macro_f1": 0.10038767450152687
+    }
+  }
+}
