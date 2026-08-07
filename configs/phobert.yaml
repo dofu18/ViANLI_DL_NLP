@@ -9,7 +9,7 @@ hypothesis_col: hypothesis
 label_col: label
 
 seed: 42
-max_length: 256
+max_length: 128
 batch_size: 32
 grad_accum: 1
 epochs: 8
