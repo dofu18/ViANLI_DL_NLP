@@ -1,0 +1,26 @@
+# Mô hình 1 — CNN-based
+run_name: textcnn
+family: cnn
+arch: textcnn
+premise_col: premise
+hypothesis_col: hypothesis
+label_col: label
+
+seed: 42
+max_length: 128
+emb_dim: 300
+pretrained_emb: phow2v      # phow2v | fasttext | none  -> nhánh ablation
+emb_path: data/raw/word2vec_vi_words_300dims.txt   # tải PhoW2V; để trống -> random init
+min_freq: 2
+segment: true               # tách từ tiếng Việt trước khi build vocab
+num_workers: 2
+n_filters: 128
+kernel_sizes: [2, 3, 4, 5]
+dropout: 0.5
+batch_size: 64
+epochs: 30
+learning_rate: 1.0e-3
+optimizer: adam
+early_stopping_patience: 5
+weight_decay: 0.0
+clip_grad: 5.0

@@ -1,0 +1,30 @@
+# Dữ liệu thô & checkpoint — không commit
+data/raw/*
+!data/raw/.gitkeep
+outputs/checkpoints/*
+!outputs/checkpoints/.gitkeep
+outputs/logs/*
+!outputs/logs/.gitkeep
+
+# Bí mật — TUYỆT ĐỐI không commit (checklist tái lập, Phụ lục A)
+kaggle.json
+.env
+*.token
+.huggingface/
+
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+
+# LaTeX build
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.synctex.gz
+README.txt
+PLAN.md

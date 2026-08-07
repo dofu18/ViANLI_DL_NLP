@@ -1,0 +1,16 @@
+# Môi trường thực nghiệm — Kaggle Notebook (GPU T4 x2 / P100), Python 3.11
+torch==2.4.0
+transformers==4.44.2
+datasets==2.21.0
+tokenizers==0.19.1
+accelerate==0.33.0
+sentencepiece==0.2.0
+scikit-learn==1.5.1
+numpy==1.26.4
+pandas==2.2.2
+matplotlib==3.9.2
+seaborn==0.13.2
+pyyaml==6.0.2
+tqdm==4.66.5
+underthesea==6.8.4      # word segmentation tiếng Việt (bắt buộc cho PhoBERT)
+gensim==4.3.3           # nạp embedding PhoW2V cho TextCNN / BiLSTM

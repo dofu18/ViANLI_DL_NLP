@@ -1,0 +1,892 @@
+% !TeX program = xelatex
+% ================================================================
+% FSB - DEEP LEARNING PRACTICAL PROJECT REPORT TEMPLATE
+% Compile on Overleaf with: Menu -> Compiler -> XeLaTeX
+% Required files in the same project folder:
+%   - main.tex
+%   - fsb-cover-bg.jpg
+%   - fsb-page-bg.png
+% ================================================================
+
+\documentclass[12pt,a4paper,oneside]{report}
+
+% ---------- Vietnamese and typography ----------
+\usepackage{fontspec}
+\defaultfontfeatures{Ligatures=TeX}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{DejaVu Sans Mono}
+\usepackage[vietnamese]{babel}
+\usepackage{microtype}
+\usepackage{setspace}
+\onehalfspacing
+
+% ---------- Page geometry and graphics ----------
+\usepackage[a4paper,top=2.9cm,bottom=2.5cm,left=3.0cm,right=2.3cm,headheight=16pt]{geometry}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{positioning,calc}
+\usepackage{eso-pic}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+
+% ---------- Colors ----------
+\usepackage{xcolor}
+\definecolor{FSBNavy}{HTML}{17345F}
+\definecolor{FSBDarkNavy}{HTML}{0C2340}
+\definecolor{FSBOrange}{HTML}{F58220}
+\definecolor{FSBGray}{HTML}{E8EBEF}
+\definecolor{FSBTextGray}{HTML}{5B6573}
+\definecolor{FSBLightBlue}{HTML}{EEF3F9}
+\definecolor{FSBLightOrange}{HTML}{FFF2E8}
+\definecolor{FSBGreen}{HTML}{2E7D32}
+\definecolor{FSBRed}{HTML}{B3261E}
+
+% ---------- Tables and lists ----------
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{pifont}
+\usepackage{amsmath,amssymb}
+\usepackage{siunitx}
+\sisetup{detect-all}
+
+% ---------- Links and references ----------
+\usepackage{xurl}
+\usepackage{hyperref}
+\usepackage[nameinlink,capitalise,noabbrev]{cleveref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=FSBNavy,
+  citecolor=FSBNavy,
+  urlcolor=FSBOrange,
+  pdfauthor={FPT School of Business and Technology},
+  pdftitle={Deep Learning Practical Project Report}
+}
+
+% ---------- Code listings ----------
+\usepackage{listings}
+\lstdefinestyle{fsbpython}{
+  language=Python,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries\color{FSBNavy},
+  commentstyle=\itshape\color{FSBGreen},
+  stringstyle=\color{FSBRed},
+  numbers=left,
+  numberstyle=\scriptsize\color{FSBTextGray},
+  stepnumber=1,
+  numbersep=8pt,
+  frame=single,
+  rulecolor=\color{FSBGray},
+  backgroundcolor=\color{FSBLightBlue},
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=4,
+  captionpos=b
+}
+\lstset{style=fsbpython}
+
+% ---------- Boxes ----------
+\usepackage[most]{tcolorbox}
+\newtcolorbox{instructionbox}[1][Hướng dẫn viết]{
+  enhanced,
+  breakable,
+  colback=FSBLightBlue,
+  colframe=FSBNavy,
+  colbacktitle=FSBNavy,
+  coltitle=white,
+  fonttitle=\bfseries,
+  title=#1,
+  boxrule=0.7pt,
+  arc=2mm,
+  left=3mm,right=3mm,top=2mm,bottom=2mm
+}
+\newtcolorbox{requirementbox}[1][Yêu cầu bắt buộc]{
+  enhanced,
+  breakable,
+  colback=FSBLightOrange,
+  colframe=FSBOrange,
+  colbacktitle=FSBOrange,
+  coltitle=white,
+  fonttitle=\bfseries,
+  title=#1,
+  boxrule=0.8pt,
+  arc=2mm,
+  left=3mm,right=3mm,top=2mm,bottom=2mm
+}
+\newtcolorbox{notebox}[1][Lưu ý]{
+  enhanced,
+  breakable,
+  colback=white,
+  colframe=FSBTextGray,
+  coltitle=FSBNavy,
+  fonttitle=\bfseries,
+  title=#1,
+  boxrule=0.5pt,
+  arc=1mm,
+  left=3mm,right=3mm,top=2mm,bottom=2mm
+}
+
+% ---------- Header and footer ----------
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\sffamily\small\color{FSBNavy}\CourseCode\ -- \CourseName}
+\fancyhead[R]{\sffamily\small\color{FSBTextGray}\nouppercase{\leftmark}}
+\fancyfoot[C]{\sffamily\small\color{FSBTextGray}Trang \thepage/\pageref*{LastPage}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% ---------- Chapter and section styles ----------
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+  {\sffamily\bfseries\color{FSBNavy}}
+  {\filleft\fontsize{44}{48}\selectfont\color{FSBGray}\thechapter}
+  {-3.2ex}
+  {\titlerule[1.2pt]\vspace{1.2ex}\Huge}
+\titlespacing*{\chapter}{0pt}{-1.0cm}{1.2cm}
+\titleformat{\section}{\Large\sffamily\bfseries\color{FSBNavy}}{\thesection}{0.8em}{}
+\titleformat{\subsection}{\large\sffamily\bfseries\color{FSBOrange}}{\thesubsection}{0.7em}{}
+\titleformat{\subsubsection}{\normalsize\sffamily\bfseries\color{FSBNavy}}{\thesubsubsection}{0.6em}{}
+
+% ---------- Captions ----------
+\captionsetup{
+  font=small,
+  labelfont={bf,color=FSBNavy},
+  textfont=it,
+  justification=centering
+}
+
+% ---------- Project metadata: edit these fields ----------
+\newcommand{\UniversityName}{FPT SCHOOL OF BUSINESS \& TECHNOLOGY}
+\newcommand{\CourseName}{DEEP LEARNING}
+\newcommand{\CourseCode}{AIN501}
+\newcommand{\ReportTitle}{TÊN ĐỀ TÀI ĐỒ ÁN}
+\newcommand{\DatasetName}{Tên bộ dữ liệu}
+\newcommand{\ClassName}{Lớp: \textit{AIN501.xx}}
+\newcommand{\GroupName}{Nhóm: \textit{XX}}
+\newcommand{\InstructorName}{Giảng viên: \textit{Họ và tên giảng viên}}
+\newcommand{\SemesterName}{Học kỳ: \textit{Fall/Spring/Summer 20XX}}
+\newcommand{\SubmissionDate}{Ngày nộp: \textit{dd/mm/yyyy}}
+
+% ---------- Background commands ----------
+\newcommand{\SetCoverBackground}{%
+  \ClearShipoutPictureBG
+  \AddToShipoutPictureBG*{\includegraphics[width=\paperwidth,height=\paperheight]{fsb-cover-bg.jpg}}%
+}
+\newcommand{\SetNormalBackground}{%
+  \ClearShipoutPictureBG
+  \AddToShipoutPictureBG{\includegraphics[width=\paperwidth,height=\paperheight]{fsb-page-bg.png}}%
+}
+
+% ---------- Convenience commands ----------
+\newcommand{\todoText}[1]{\textcolor{FSBRed}{\textbf{[CẦN ĐIỀN: #1]}}}
+\newcommand{\checkitem}{\item[$\square$]}
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{Z}{>{\centering\arraybackslash}X}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\newcommand{\placeholderfigure}[2][0.82\textwidth]{%
+  \begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+      \draw[rounded corners=2mm,fill=FSBGray,draw=FSBTextGray,dashed]
+        (0,0) rectangle (#1,5cm);
+      \node[align=center,text=FSBTextGray,font=\sffamily] at (0.5*#1,2.5cm)
+        {Chèn hình tại đây\\[1mm]\small #2};
+    \end{tikzpicture}
+    \caption{#2}
+  \end{figure}
+}
+
+% ================================================================
+\begin{document}
+
+% ========================= COVER PAGE ============================
+\SetCoverBackground
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture,overlay]
+  \node[anchor=north west,text=white,font=\sffamily\bfseries\large,align=left]
+    at ($(current page.north west)+(1.5cm,-1.35cm)$) {\UniversityName};
+
+  \node[anchor=center,rounded corners=3mm,fill=white,fill opacity=0.93,text opacity=1,
+        minimum width=16.2cm,inner sep=12mm]
+    at ($(current page.center)+(0,1.1cm)$)
+    {\begin{minipage}{14.3cm}
+      \centering
+      {\sffamily\bfseries\fontsize{18}{22}\selectfont\color{FSBOrange}
+      BÁO CÁO ĐỒ ÁN THỰC HÀNH\\[3mm]}
+      {\sffamily\bfseries\fontsize{29}{34}\selectfont\color{FSBNavy}
+      \ReportTitle\\[4mm]}
+      {\sffamily\large\color{FSBTextGray}
+      Bộ dữ liệu: \DatasetName}
+      \vspace{8mm}
+      \renewcommand{\arraystretch}{1.35}
+      \begin{tabular}{@{}L{4.2cm}L{8.8cm}@{}}
+        \textbf{Môn học:} & \CourseName\ (\CourseCode)\\
+        \textbf{Lớp/Nhóm:} & \ClassName\ -- \GroupName\\
+        \textbf{Giảng viên:} & \InstructorName\\
+        \textbf{Học kỳ:} & \SemesterName\\
+        \textbf{Ngày nộp:} & \SubmissionDate\\
+      \end{tabular}
+    \end{minipage}};
+
+  % \node[anchor=south,text=white,font=\sffamily\small,align=center]
+  %   at ($(current page.south)+(0,1.2cm)$)
+  %   {Báo cáo cần đi kèm mã nguồn, hướng dẫn tái lập thực nghiệm và liên kết dữ liệu/mô hình.};
+\end{tikzpicture}
+\end{titlepage}
+
+% ====================== NORMAL PAGE STYLE ========================
+\SetNormalBackground
+\pagenumbering{roman}
+\setcounter{page}{1}
+
+% ======================= PROJECT BRIEF ===========================
+\chapter*{Yêu cầu đồ án và cách sử dụng mẫu báo cáo}
+\addcontentsline{toc}{chapter}{Yêu cầu đồ án và cách sử dụng mẫu báo cáo}
+
+\begin{instructionbox}[Căn cứ học phần]
+Mẫu báo cáo này được thiết kế theo định hướng học phần AIN501: thực hành xây dựng và huấn luyện
+CNN, RNN/LSTM và Transformer; sử dụng các kỹ thuật cải thiện mô hình như Dropout, Batch
+Normalization, khởi tạo Xavier/He; chẩn đoán lỗi hệ thống học máy; áp dụng transfer learning,
+multi-task learning và thực hiện đồ án thực hành bằng Python/TensorFlow. Nội dung đồ án đồng thời
+phù hợp với các mô-đun CNN, object detection, RNN, NLP/word embeddings, attention và Transformer.
+\end{instructionbox}
+
+\begin{requirementbox}
+Mỗi bạn chọn \textbf{một bộ dữ liệu} và thực hiện tối thiểu \textbf{bốn mô hình}:
+\begin{enumerate}[leftmargin=*,itemsep=2pt]
+  \item một mô hình thuộc họ \textbf{CNN} hoặc CNN-based;
+  \item một mô hình thuộc họ \textbf{RNN/LSTM/GRU} hoặc mô hình xử lý chuỗi tương đương;
+  \item một mô hình thuộc họ \textbf{Transformer};
+  \item một \textbf{mô hình tham khảo bên ngoài} từ bài báo, GitHub, Kaggle hoặc kho mô hình công khai.
+\end{enumerate}
+Các mô hình phải được đánh giá trên cùng giao thức dữ liệu và metric phù hợp. Với bài toán mà một họ kiến trúc không phù hợp tự nhiên, nhóm phải giải thích rõ và thực nghiệm mô hình thay thế. 
+\end{requirementbox}
+
+\section*{Sản phẩm phải nộp}
+\begin{itemize}[leftmargin=*,itemsep=3pt]
+  \checkitem Báo cáo PDF biên dịch từ mẫu này.
+  \checkitem Mã nguồn chạy được trên Google Colab/Kaggle hoặc máy cục bộ.
+  \checkitem Tệp \texttt{requirements.txt} hoặc mô tả môi trường thực nghiệm.
+  
+\end{itemize}
+
+\section*{Nguyên tắc so sánh công bằng}
+\begin{enumerate}[leftmargin=*,itemsep=3pt]
+  \item Sử dụng cùng cách chia train/validation/test hoặc cùng các fold đánh giá.
+  \item Cố định random seed và báo cáo seed đã dùng.
+  \item Dùng cùng metric chính; giải thích metric phụ và tiêu chí chọn mô hình tốt nhất.
+  \item Báo cáo rõ pretrained weights, data augmentation, tokenizer, kích thước đầu vào và ngưỡng dự đoán.
+  \item Không sử dụng test set để điều chỉnh siêu tham số.
+  \item Khi dùng code bên ngoài, ghi rõ URL, phiên bản/commit, giấy phép và phần đã chỉnh sửa.
+\end{enumerate}
+
+\begin{notebox}[Liên hệ với tiêu chí đánh giá của học phần]
+Phần đánh giá trong syllabus nhấn mạnh: tính đúng đắn, sáng tạo và giải quyết vấn đề, mức độ hoàn thiện sản phẩm, kỹ năng trình bày, khả năng vận dụng lý thuyết và nộp bài đúng hạn.
+Vì vậy, báo cáo không chỉ trình bày điểm số tốt nhất mà còn phải trình bày kỹ càng quy trình thực nghiệm, phân tích lỗi có chiều sâu và khả năng tái lập.
+\end{notebox}
+
+\clearpage
+\tableofcontents
+\clearpage
+\listoffigures
+\addcontentsline{toc}{chapter}{Danh mục hình}
+\clearpage
+\listoftables
+\addcontentsline{toc}{chapter}{Danh mục bảng}
+\clearpage
+
+% ====================== MAIN REPORT ==============================
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\chapter{Tóm tắt}
+\begin{instructionbox}
+Viết 200--300 từ, tóm tắt: bài toán, bộ dữ liệu, bốn mô hình đã thực nghiệm, metric chính, kết quả nổi
+bật và kết luận quan trọng. Không đưa trích dẫn, bảng hoặc hình vào phần này.
+\end{instructionbox}
+
+\todoText{Viết tóm tắt đồ án tại đây.}
+
+\vspace{5mm}
+\noindent\textbf{Từ khóa:} \todoText{3--6 từ khóa, phân cách bằng dấu chấm phẩy.}
+
+\chapter{Giới thiệu bài toán}
+
+\section{Bối cảnh và động lực}
+\begin{instructionbox}
+Trình bày bối cảnh thực tế, đối tượng sử dụng, ý nghĩa của bài toán và lý do lựa chọn chủ đề. Nêu rõ
+đầu vào, đầu ra và loại tác vụ: classification, detection, sequence labeling, QA, VQA, image captioning,
+multimodal learning, v.v.
+\end{instructionbox}
+\todoText{Mô tả bối cảnh và động lực.}
+
+\section{Phát biểu bài toán}
+Hãy mô tả bài toán bằng ký hiệu hoặc quy trình rõ ràng. Ví dụ với phân loại đa lớp:
+\begin{equation}
+  f_{\theta}: \mathcal{X} \rightarrow \{1,2,\ldots,K\},
+\end{equation}
+trong đó $\mathcal{X}$ là không gian đầu vào, $K$ là số lớp và $\theta$ là tham số mô hình.
+
+\todoText{Điều chỉnh phát biểu toán học theo đề tài.}
+
+\section{Mục tiêu và câu hỏi thực nghiệm}
+\begin{enumerate}[leftmargin=*]
+  \item \todoText{Mục tiêu 1: xây dựng các baseline thuộc nội dung học phần.}
+  \item \todoText{Mục tiêu 2: so sánh với mô hình bên ngoài.}
+  \item \todoText{Mục tiêu 3: phân tích ảnh hưởng của dữ liệu/siêu tham số.}
+\end{enumerate}
+
+\noindent\textbf{Câu hỏi thực nghiệm gợi ý:}
+\begin{itemize}[leftmargin=*]
+  \item Họ kiến trúc nào phù hợp nhất với dữ liệu và vì sao?
+  \item Pretraining/transfer learning cải thiện kết quả đến mức nào?
+  \item Mô hình nào đạt cân bằng tốt giữa chất lượng, thời gian và số tham số?
+  \item Mô hình thường sai ở những nhóm mẫu nào?
+\end{itemize}
+
+
+
+\chapter{Bộ dữ liệu và tiền xử lý}
+
+\section{Nguồn và giấy phép dữ liệu}
+\begin{instructionbox}
+Ghi tên bộ dữ liệu, URL, tác giả/đơn vị cung cấp, phiên bản, giấy phép, ngày truy cập và phạm vi sử dụng.
+Nếu dữ liệu có thông tin nhạy cảm, cần mô tả biện pháp ẩn danh và giới hạn đạo đức.
+\end{instructionbox}
+
+\begin{table}[H]
+\centering
+\caption{Thông tin tổng quan về bộ dữ liệu}
+\begin{tabularx}{\textwidth}{@{}L{4.2cm}Y@{}}
+\toprule
+\textbf{Thuộc tính} & \textbf{Nội dung} \\
+\midrule
+Tên bộ dữ liệu & \DatasetName \\
+Nguồn/URL & \todoText{Chèn liên kết} \\
+Loại dữ liệu & \todoText{Ảnh/văn bản/chuỗi thời gian/đa phương thức} \\
+Số mẫu & \todoText{Tổng số mẫu và số mẫu theo split} \\
+Số lớp/nhãn & \todoText{Số lớp, multi-label hay single-label} \\
+Giấy phép & \todoText{Tên giấy phép hoặc điều khoản sử dụng} \\
+Ngày truy cập & \todoText{dd/mm/yyyy} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Khám phá dữ liệu}
+\begin{instructionbox}
+Báo cáo phân bố lớp, kích thước đầu vào, độ dài chuỗi, dữ liệu thiếu, trùng lặp, nhiễu nhãn và ví dụ
+đại diện. Các biểu đồ phải có tiêu đề, nhãn trục, đơn vị và phần diễn giải.
+\end{instructionbox}
+
+\placeholderfigure{Phân bố số lượng mẫu theo lớp}
+\placeholderfigure{Một số mẫu dữ liệu đại diện}
+
+\section{Chia dữ liệu và phòng tránh rò rỉ}
+\begin{table}[H]
+\centering
+\caption{Cách chia dữ liệu sử dụng trong toàn bộ thực nghiệm}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Tập} & \textbf{Số mẫu} & \textbf{Tỷ lệ} & \textbf{Mục đích} \\
+\midrule
+Train & \todoText{...} & \todoText{...\%} & Huấn luyện \\
+Validation & \todoText{...} & \todoText{...\%} & Chọn siêu tham số \\
+Test & \todoText{...} & \todoText{...\%} & Đánh giá cuối cùng \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\todoText{Mô tả stratified split, patient-wise split, document-wise split hoặc quy tắc nhóm mẫu nếu có.}
+
+\section{Tiền xử lý và tăng cường dữ liệu}
+\begin{table}[H]
+\centering
+\caption{Các bước tiền xử lý}
+\begin{tabularx}{\textwidth}{@{}L{3.4cm}Y L{3.2cm}@{}}
+\toprule
+\textbf{Bước} & \textbf{Mô tả} & \textbf{Tham số chính} \\
+\midrule
+Làm sạch & \todoText{Mô tả} & \todoText{...} \\
+Chuẩn hóa & \todoText{Mô tả} & \todoText{...} \\
+Tokenization/Resize & \todoText{Mô tả} & \todoText{...} \\
+Augmentation & \todoText{Mô tả} & \todoText{...} \\
+Xử lý mất cân bằng & \todoText{Class weight/oversampling/...} & \todoText{...} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\chapter{Phương pháp và kiến trúc mô hình}
+
+\section{Tổng quan quy trình}
+\begin{instructionbox}
+Vẽ pipeline từ dữ liệu thô đến dự đoán cuối cùng. Phân biệt rõ bước dùng chung và bước riêng của từng
+mô hình. Ghi kích thước tensor tại các điểm quan trọng.
+\end{instructionbox}
+\placeholderfigure{Sơ đồ tổng quan pipeline của hệ thống}
+
+\section{Mô hình 1: CNN-based}
+\begin{instructionbox}
+Mô tả kiến trúc, số lớp, kernel/filter, activation, pooling, normalization, dropout, loss và lý do lựa chọn.
+Với văn bản có thể dùng TextCNN/Conv1D; với chuỗi thời gian có thể dùng 1D-CNN; với ảnh có thể dùng
+CNN tự xây dựng hoặc transfer learning.
+\end{instructionbox}
+\todoText{Mô tả kiến trúc CNN và chèn sơ đồ.}
+
+\begin{table}[H]
+\centering
+\caption{Cấu hình mô hình CNN-based}
+\begin{tabularx}{\textwidth}{@{}L{4.5cm}Y@{}}
+\toprule
+\textbf{Thành phần} & \textbf{Giá trị} \\
+\midrule
+Kiến trúc & \todoText{Tên mô hình} \\
+Đầu vào & \todoText{Kích thước đầu vào} \\
+Số tham số & \todoText{...} \\
+Pretrained weights & \todoText{Có/Không; nguồn} \\
+Regularization & \todoText{Dropout, BatchNorm, weight decay} \\
+Loss & \todoText{...} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Mô hình 2: RNN/LSTM/GRU-based}
+\begin{instructionbox}
+Mô tả biểu diễn chuỗi, embedding, chiều ẩn, số lớp, bidirectional hay unidirectional, cơ chế pooling/
+attention và cách xử lý độ dài khác nhau. Với ảnh hoặc dữ liệu không tuần tự, cần giải thích cách chuyển
+đổi sang chuỗi hoặc sử dụng kiến trúc hybrid CNN--RNN.
+\end{instructionbox}
+\todoText{Mô tả kiến trúc RNN/LSTM/GRU.}
+
+\section{Mô hình 3: Transformer-based}
+\begin{instructionbox}
+Mô tả encoder/decoder, patch/token embedding, positional encoding, số head, số layer, kích thước hidden,
+pretrained checkpoint và chiến lược fine-tuning. Nếu dùng Hugging Face, ghi rõ model ID và phiên bản.
+\end{instructionbox}
+\todoText{Mô tả kiến trúc Transformer.}
+
+\section{Mô hình 4: Mô hình tham khảo bên ngoài}
+\begin{requirementbox}[Thông tin bắt buộc cho mô hình bên ngoài]
+\begin{itemize}[leftmargin=*]
+  \item Nguồn: bài báo/GitHub/Kaggle/model hub và URL đầy đủ.
+  \item Phiên bản, tag hoặc commit hash.
+  \item Giấy phép sử dụng.
+  \item Mức độ sử dụng: chạy nguyên bản, fine-tune hay tái hiện một phần.
+  \item Những thay đổi so với code gốc và lý do thay đổi.
+  \item Đảm bảo mô hình không được huấn luyện trước trên test set của đề tài.
+\end{itemize}
+\end{requirementbox}
+
+\begin{table}[H]
+\centering
+\caption{Thông tin nguồn của mô hình bên ngoài}
+\begin{tabularx}{\textwidth}{@{}L{4.2cm}Y@{}}
+\toprule
+Tên mô hình & \todoText{...} \\
+Nguồn công bố & \todoText{Paper/GitHub/Kaggle/...} \\
+URL & \todoText{...} \\
+Phiên bản/commit & \todoText{...} \\
+Giấy phép & \todoText{...} \\
+Điều chỉnh của nhóm & \todoText{...} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Hàm mất mát và chiến lược tối ưu}
+\todoText{Trình bày công thức loss, optimizer, scheduler, early stopping và tiêu chí lưu checkpoint.}
+
+Ví dụ với phân loại đa lớp, cross-entropy được định nghĩa:
+\begin{equation}
+  \mathcal{L}_{\mathrm{CE}}=-\frac{1}{N}\sum_{i=1}^{N}\sum_{k=1}^{K}
+  y_{ik}\log \hat{p}_{ik}.
+\end{equation}
+
+\chapter{Thiết kế thực nghiệm}
+
+\section{Môi trường thực nghiệm}
+\begin{table}[H]
+\centering
+\caption{Môi trường phần cứng và phần mềm}
+\begin{tabularx}{\textwidth}{@{}L{4.0cm}Y@{}}
+\toprule
+Hạng mục & Thông tin \\
+\midrule
+Nền tảng & \todoText{Google Colab/Kaggle/Local/Cloud} \\
+CPU/GPU & \todoText{...} \\
+RAM/VRAM & \todoText{...} \\
+Python & \todoText{Phiên bản} \\
+Framework & \todoText{TensorFlow/Keras; PyTorch nếu có} \\
+Thư viện chính & \todoText{Transformers, OpenCV, scikit-learn, ...} \\
+Random seed & \todoText{...} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Cấu hình huấn luyện}
+\begin{table}[H]
+\centering
+\small
+\caption{Siêu tham số huấn luyện của các mô hình}
+\begin{tabularx}{\textwidth}{@{}L{2.9cm}YYYY@{}}
+\toprule
+\textbf{Siêu tham số} & \textbf{CNN} & \textbf{RNN/LSTM} & \textbf{Transformer} & \textbf{External} \\
+\midrule
+Batch size & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} \\
+Epochs & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} \\
+Learning rate & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} \\
+Optimizer & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} \\
+Scheduler & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} \\
+Early stopping & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Metric đánh giá}
+\begin{instructionbox}
+Chọn metric theo loại bài toán và nêu rõ metric chính dùng để xếp hạng mô hình. Không chỉ báo cáo
+accuracy khi dữ liệu mất cân bằng. Với metric có nhiều biến thể, ghi rõ macro/micro/weighted hoặc ngưỡng.
+\end{instructionbox}
+
+\begin{table}[H]
+\centering
+\caption{Gợi ý metric theo loại tác vụ}
+\begin{tabularx}{\textwidth}{@{}L{4.2cm}Y@{}}
+\toprule
+\textbf{Loại tác vụ} & \textbf{Metric gợi ý} \\
+\midrule
+Phân loại đơn nhãn & Accuracy, Macro-F1, Weighted-F1, Precision, Recall \\
+Phân loại đa nhãn & Micro-F1, Macro-F1, mAP, Hamming loss \\
+Object detection & mAP@0.5, mAP@0.5:0.95, Precision, Recall, FPS \\
+Question answering & Exact Match, token-level F1 \\
+Image captioning & BLEU, METEOR, ROUGE-L, CIDEr \\
+VQA/Multimodal & Accuracy hoặc metric theo benchmark; phân tích theo loại câu hỏi \\
+ECG/y sinh & Macro-F1, AUROC/AUPRC theo lớp; sensitivity, specificity khi phù hợp \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Kế hoạch thí nghiệm và ablation}
+\begin{enumerate}[leftmargin=*]
+  \item So sánh bốn mô hình trên cùng test set.
+
+  \item Phân tích ít nhất một yếu tố: augmentation, dropout, learning rate, class weighting, tokenizer, có/không có pre-trained weights hoặc backbone model
+  kích thước đầu vào, số layer hoặc chiến lược fine-tuning.
+  \item Đo thời gian huấn luyện, suy luận, số tham số hoặc tài nguyên nếu có thể.
+\end{enumerate}
+
+\chapter{Kết quả thực nghiệm}
+
+\section{Kết quả định lượng chính}
+\begin{table}[H]
+\centering
+\caption{So sánh kết quả chính trên tập test}
+\begin{tabularx}{\textwidth}{@{}L{3.6cm}C{2.1cm}C{2.1cm}C{2.1cm}C{2.1cm}Y@{}}
+\toprule
+\textbf{Mô hình} & \textbf{Metric 1} & \textbf{Metric 2} & \textbf{Params} & \textbf{Time} & \textbf{Ghi chú} \\
+\midrule
+CNN-based & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} \\
+RNN/LSTM-based & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} \\
+Transformer-based & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} \\
+External model & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{notebox}
+Bôi đậm kết quả tốt nhất và gạch chân kết quả tốt thứ hai chỉ khi các mô hình được đánh giá cùng một
+điều kiện. Nếu chạy nhiều seed, báo cáo trung bình $\pm$ độ lệch chuẩn.
+\end{notebox}
+
+\section{Đường cong huấn luyện}
+\placeholderfigure{Training/validation loss và metric qua các epoch}
+
+\section{Kết quả theo lớp hoặc nhóm dữ liệu}
+\placeholderfigure{Confusion matrix hoặc kết quả theo từng lớp}
+
+\section{Kết quả ablation}
+\begin{table}[H]
+\centering
+\caption{Kết quả phân tích ablation}
+\begin{tabularx}{\textwidth}{@{}Y C{2.5cm}C{2.5cm}Y@{}}
+\toprule
+\textbf{Cấu hình} & \textbf{Metric chính} & \textbf{Chênh lệch} & \textbf{Nhận xét} \\
+\midrule
+Cấu hình đầy đủ & \todoText{...} & -- & \todoText{...} \\
+Bỏ/thay đổi thành phần 1 & \todoText{...} & \todoText{...} & \todoText{...} \\
+Bỏ/thay đổi thành phần 2 & \todoText{...} & \todoText{...} & \todoText{...} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\chapter{Phân tích và thảo luận}
+
+\section{So sánh các họ kiến trúc}
+\begin{instructionbox}
+Không lặp lại bảng số liệu. Hãy giải thích nguyên nhân khác biệt dựa trên cấu trúc dữ liệu, inductive bias,
+pretraining, số tham số, chất lượng tối ưu và đặc điểm của từng kiến trúc.
+\end{instructionbox}
+\todoText{Phân tích CNN, RNN/LSTM, Transformer và external model.}
+
+\section{Phân tích lỗi}
+\begin{instructionbox}
+Chọn tối thiểu 10--20 trường hợp sai hoặc các nhóm lỗi đại diện. Phân loại nguyên nhân: nhãn mơ hồ,
+nhiễu dữ liệu, thiếu ngữ cảnh, lớp hiếm, domain shift, overfitting, preprocessing, ngưỡng quyết định,
+khả năng mô hình hoặc lỗi cài đặt.
+\end{instructionbox}
+\placeholderfigure{Các ví dụ dự đoán đúng và sai tiêu biểu}
+
+\begin{table}[H]
+\centering
+\caption{Phân loại lỗi của mô hình tốt nhất}
+\begin{tabularx}{\textwidth}{@{}Y C{2.4cm}Y@{}}
+\toprule
+\textbf{Loại lỗi} & \textbf{Tần suất} & \textbf{Giải thích/giải pháp} \\
+\midrule
+\todoText{...} & \todoText{...} & \todoText{...} \\
+\todoText{...} & \todoText{...} & \todoText{...} \\
+\todoText{...} & \todoText{...} & \todoText{...} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Chi phí tính toán và khả năng triển khai}
+\todoText{Thảo luận số tham số, bộ nhớ, tốc độ suy luận, kích thước model và lựa chọn phù hợp cho triển khai.}
+
+\section{Hạn chế và vấn đề đạo đức}
+\todoText{Nêu giới hạn dữ liệu, mô hình, metric, khả năng tổng quát hóa, bias, quyền riêng tư và rủi ro sử dụng.}
+
+\chapter{Kết luận và hướng phát triển}
+
+\section{Kết luận}
+\begin{instructionbox}
+Tóm tắt câu trả lời cho các câu hỏi thực nghiệm. Nêu mô hình tốt nhất theo cả chất lượng và chi phí;
+không chỉ lặp lại con số trong bảng.
+\end{instructionbox}
+\todoText{Viết kết luận.}
+
+\section{Hướng phát triển}
+\todoText{Đề xuất 3--5 hướng có thể thực hiện được: thêm dữ liệu, cải thiện nhãn, kiến trúc mới, tối ưu triển khai, giải thích mô hình, v.v.}
+
+
+% ====================== REFERENCES ===============================
+\chapter*{Tài liệu tham khảo}
+\addcontentsline{toc}{chapter}{Tài liệu tham khảo}
+\begin{instructionbox}
+Sử dụng một chuẩn trích dẫn nhất quán (IEEE/APA). Mỗi mô hình bên ngoài phải có trích dẫn bài báo hoặc
+kho mã nguồn. Không chỉ đưa URL; cần ghi tác giả, tiêu đề, năm và nguồn công bố khi có.
+\end{instructionbox}
+
+% đọc thêm citation bằng bibfile 
+\begin{thebibliography}{99}
+\bibitem{goodfellow2016}
+I. Goodfellow, Y. Bengio, and A. Courville,
+\textit{Deep Learning}. MIT Press, 2016.
+
+\bibitem{vaswani2017}
+A. Vaswani et al., ``Attention Is All You Need,'' in \textit{Advances in Neural Information Processing Systems}, 2017.
+
+\bibitem{dataset}
+\todoText{Thêm trích dẫn chính thức của bộ dữ liệu.}
+
+\bibitem{externalmodel}
+\todoText{Thêm trích dẫn bài báo hoặc repository của mô hình bên ngoài.}
+\end{thebibliography}
+
+% ====================== APPENDICES ================================
+\appendix
+
+\chapter{Checklist tái lập thực nghiệm}
+\begin{itemize}[leftmargin=*,itemsep=4pt]
+  \checkitem Repository có README và cấu trúc thư mục rõ ràng.
+  \checkitem Có hướng dẫn tải/chuẩn bị dữ liệu.
+  \checkitem Có tệp khai báo thư viện và phiên bản.
+  \checkitem Có lệnh train, evaluate và inference.
+  \checkitem Có seed, cấu hình và checkpoint/model ID.
+  \checkitem Không commit dữ liệu nhạy cảm, token hoặc khóa API.
+  \checkitem Có license/citation cho mã nguồn và mô hình tham khảo.
+  \checkitem Kết quả trong báo cáo có thể tạo lại từ code.
+\end{itemize}
+
+\section{Ví dụ cấu trúc repository}
+\begin{lstlisting}[caption={Cấu trúc thư mục gợi ý}]
+project/
+|-- README.md
+|-- requirements.txt
+|-- configs/
+|-- data/
+|-- notebooks/
+|-- src/
+|   |-- datasets.py
+|   |-- models.py
+|   |-- train.py
+|   |-- evaluate.py
+|-- outputs/
+|-- reports/
+\end{lstlisting}
+
+\chapter{Danh sách chủ đề và bộ dữ liệu gợi ý}
+\begin{instructionbox}
+Danh sách dưới đây tổng hợp các chủ đề do giảng viên cung cấp. Nhóm cần kiểm tra lại giấy phép, phiên
+bản và khả năng truy cập trước khi bắt đầu. Các nguồn chỉ có tên mà chưa có URL đầy đủ cần được xác
+nhận lại trên LMS hoặc với giảng viên.
+\end{instructionbox}
+
+\small
+\renewcommand{\arraystretch}{1.25}
+\begin{longtable}{C{0.8cm}L{7.0cm}L{7.0cm}}
+\caption{Các chủ đề đồ án Deep Learning gợi ý}\label{tab:topics}\\
+\toprule
+\textbf{STT} & \textbf{Chủ đề} & \textbf{Nguồn dữ liệu} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{STT} & \textbf{Chủ đề} & \textbf{Nguồn dữ liệu} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{3}{r}{\textit{Tiếp tục ở trang sau}}\\
+\endfoot
+\bottomrule
+\endlastfoot
+
+1 & Nhận diện cảm xúc trong bình luận mạng xã hội tiếng Việt &
+\url{https://huggingface.co/datasets/tridm/UIT-VSMEC} \\
+
+2 & Phát hiện biển báo giao thông bằng YOLO/DETR nhẹ &
+\textit{Traffic Signs Detection -- liên kết do giảng viên/LMS cung cấp} \\
+
+3 & Phân loại rác thải bằng ảnh &
+\url{https://www.kaggle.com/datasets/techsash/waste-classification-data} \\
+
+4 & Visual Question Answering tiếng Việt &
+\url{https://github.com/kh4nh12/ViVQA} \\
+
+5 & Vietnamese Hate Speech Detection theo đối tượng &
+\url{https://huggingface.co/datasets/sonlam1102/vithsd} \\
+
+6 & Nhận diện bệnh lá cà chua &
+\url{https://www.kaggle.com/datasets/kaustubhb999/tomatoleaf/data} \\
+
+7 & Dự đoán nhóm bệnh từ mô tả triệu chứng tiếng Việt &
+\url{https://www.kaggle.com/datasets/pb30025030/vimedical-disease} \\
+
+8 & Question Answering tiếng Việt &
+\url{https://huggingface.co/datasets/taidng/UIT-ViQuAD2.0} \\
+
+9 & Phân loại rối loạn nhịp tim từ ECG 12 đạo trình &
+\url{https://www.kaggle.com/datasets/erarayamorenzomuten/chapmanshaoxing-12lead-ecg-database/data} \\
+
+10 & Phân loại tổn thương da bằng ảnh dermoscopy &
+\url{https://www.kaggle.com/datasets/kmader/skin-cancer-mnist-ham10000} \\
+
+11 & Phát hiện phàn nàn trong đánh giá thương mại điện tử tiếng Việt &
+\url{https://huggingface.co/datasets/tarudesu/ViOCD} \\
+
+12 & Phân tích cảm xúc phản hồi sinh viên tiếng Việt theo sentiment và topic &
+\url{https://huggingface.co/datasets/uitnlp/vietnamese_students_feedback} \\
+
+13 & Phân loại rác thải bằng ảnh (RealWaste) &
+\url{https://archive.ics.uci.edu/dataset/908/realwaste} \\
+
+14 & Phân loại cảnh quan tự nhiên và đô thị từ ảnh &
+\url{https://www.kaggle.com/datasets/puneet6060/intel-image-classification} \\
+
+15 & Phát hiện vết nứt trên bề mặt bê tông &
+\url{https://www.kaggle.com/datasets/arnavr10880/concrete-crack-images-for-classification} \\
+
+16 & Suy luận ngôn ngữ tự nhiên tiếng Việt &
+\url{https://huggingface.co/datasets/uitnlp/ViANLI} \\
+
+17 & Phân loại ý định câu hỏi chăm sóc khách hàng ngân hàng &
+\url{https://huggingface.co/datasets/PolyAI/banking77} \\
+
+18 & Phân tích cảm xúc, hài hước, châm biếm và nội dung phản cảm trong meme &
+\url{https://www.kaggle.com/datasets/williamscott701/memotion-dataset-7k} \\
+
+19 & Sinh mô tả ảnh bằng tiếng Việt &
+\url{https://huggingface.co/datasets/ThucPD/UIT-ViIC} \\
+
+20 & Nhận diện ký tự ngôn ngữ ký hiệu từ ảnh bàn tay &
+\url{https://www.kaggle.com/datasets/datamunge/sign-language-mnist} \\
+
+21 & Nhận diện bệnh trên lá sắn bằng ảnh thực tế &
+\url{https://www.kaggle.com/competitions/cassava-leaf-disease-classification/data} \\
+
+22 & Hỏi đáp tiếng Việt dựa trên nội dung chữ trong ảnh &
+\url{https://huggingface.co/datasets/minhquan6203/ViTextVQA} \\
+
+23 & Nhận diện cảm xúc trong nội dung mạng xã hội tiếng Anh &
+\url{https://huggingface.co/datasets/dair-ai/emotion} \\
+
+24 & Active AI Camera -- bảo đảm an toàn lao động ở nhà máy (nhận diện mũ bảo hộ/PPE) &
+\url{https://universe.roboflow.com/mohamed-traore-2ekkp/ppe-detection-l80fg} \\
+\end{longtable}
+\normalsize
+
+\chapter{Gợi ý ánh xạ mô hình theo loại dữ liệu}
+\begin{table}[H]
+\centering
+\caption{Các lựa chọn kiến trúc phù hợp để đáp ứng yêu cầu bốn mô hình}
+\begin{tabularx}{\textwidth}{@{}L{3.5cm}Y@{}}
+\toprule
+\textbf{Loại dữ liệu/tác vụ} & \textbf{Gợi ý lựa chọn mô hình} \\
+\midrule
+Ảnh phân loại &
+\textbf{CNN-based:} CNN tự xây dựng, ResNet hoặc EfficientNet.\newline
+\textbf{RNN/LSTM-based:} CNN--LSTM hoặc biểu diễn ảnh thành chuỗi patch khi có cơ sở.\newline
+\textbf{Transformer-based:} ViT hoặc Swin Transformer.\newline
+\textbf{External:} mô hình chuyên biệt từ paper/GitHub/Kaggle. \\
+\addlinespace
+Văn bản &
+\textbf{CNN-based:} TextCNN hoặc Conv1D.\newline
+\textbf{RNN/LSTM-based:} BiLSTM hoặc GRU.\newline
+\textbf{Transformer-based:} BERT, PhoBERT hoặc Transformer encoder.\newline
+\textbf{External:} mô hình/repository ngoài nội dung lab. \\
+\addlinespace
+Chuỗi ECG &
+\textbf{CNN-based:} 1D-CNN.\newline
+\textbf{RNN/LSTM-based:} LSTM hoặc GRU.\newline
+\textbf{Transformer-based:} time-series Transformer.\newline
+\textbf{External:} mô hình từ bài báo y sinh. \\
+\addlinespace
+Object detection &
+\textbf{CNN-based:} YOLO hoặc Faster R-CNN.\newline
+\textbf{RNN/LSTM-based:} kiến trúc hybrid/sequence chỉ khi có cơ sở và được giảng viên phê duyệt.\newline
+\textbf{Transformer-based:} DETR hoặc Deformable DETR.\newline
+\textbf{External:} detector khác hoặc repository công khai. \\
+\addlinespace
+Đa phương thức &
+\textbf{CNN-based:} CNN encoder cho ảnh.\newline
+\textbf{RNN/LSTM-based:} RNN decoder hoặc cơ chế fusion tuần tự.\newline
+\textbf{Transformer-based:} vision-language Transformer.\newline
+\textbf{External:} mô hình VQA/image captioning từ paper. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\chapter{Checklist tự đánh giá trước khi nộp}
+\begin{enumerate}[leftmargin=*]
+  \checkitem Báo cáo phát biểu rõ bài toán, đầu vào, đầu ra và mục tiêu.
+  \checkitem Phân tích dữ liệu đủ sâu và không có data leakage.
+  \checkitem Có tối thiểu ba mô hình thuộc nội dung CNN, RNN/LSTM và Transformer.
+  \checkitem Có một mô hình tham khảo bên ngoài và trích dẫn đúng nguồn.
+  \checkitem Giao thức đánh giá công bằng, metric phù hợp và test set độc lập.
+  \checkitem Có bảng kết quả, learning curve, phân tích theo lớp và error analysis.
+  \checkitem Có thảo luận về chi phí tính toán, hạn chế và đạo đức.
+  \checkitem Mã nguồn có thể chạy lại và kết quả khớp với báo cáo.
+
+  \checkitem Đã kiểm tra chính tả, hình/bảng, số trang và liên kết.
+\end{enumerate}
+
+\end{document}
