@@ -60,8 +60,14 @@ class BiLSTMNLI(nn.Module):
     def encode(self, ids):
         h, _ = self.lstm(self.emb(ids))
         mask = (ids != 0).unsqueeze(-1)
-        scores = self.attn(h).masked_fill(~mask, float("-inf"))
-        return (h * scores.softmax(dim=1)).sum(dim=1)
+        # Câu rỗng (toàn PAD) xuất hiện ở ablation hypothesis-only và khi hypothesis
+        # bị cắt hết. Dùng -1e4 thay -inf: -inf trên cả hàng làm softmax ra NaN và
+        # đầu độc toàn bộ gradient (đây chính là lỗi của run bilstm_hyponly cũ).
+        scores = self.attn(h).masked_fill(~mask, -1e4)
+        weights = scores.softmax(dim=1)
+        empty = ~mask.any(dim=1, keepdim=True)  # (B, 1, 1)
+        weights = weights.masked_fill(empty, 0.0)  # câu rỗng -> vector 0
+        return (h * weights).sum(dim=1)
 
     def forward(self, premise_ids, hypothesis_ids):
         return self.head(pair_features(self.encode(premise_ids),

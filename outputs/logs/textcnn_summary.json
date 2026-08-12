@@ -1,0 +1,26 @@
+{
+  "run_name": "textcnn",
+  "arch": "textcnn",
+  "accuracy": 0.322,
+  "macro_f1": 0.31912306529437967,
+  "weighted_f1": 0.31918314712205165,
+  "params": 3199263,
+  "epochs_chạy": 11,
+  "train_seconds": 51.2,
+  "config": {
+    "seed": 42,
+    "epochs": 30,
+    "batch_size": 64,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0,
+    "clip_grad": 5.0,
+    "early_stopping_patience": 5,
+    "class_weights": null,
+    "run_name": "textcnn",
+    "arch": "textcnn",
+    "dropout": 0.5,
+    "max_length": 128,
+    "hypothesis_only": false,
+    "pretrained_emb": "none"
+  }
+}

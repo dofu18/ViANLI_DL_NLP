@@ -11,6 +11,12 @@ outputs/logs/*
 !outputs/logs/predictions/
 !outputs/logs/predictions/*.npy
 
+# Output tải từ Kaggle về (đã gộp vào outputs/) và bản clone repo do Kaggle sinh
+results/
+repo/
+__results___files/
+__huggingface_repos__.json
+
 # Bí mật — TUYỆT ĐỐI không commit (checklist tái lập, Phụ lục A)
 kaggle.json
 .env

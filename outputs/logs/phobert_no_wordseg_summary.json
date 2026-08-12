@@ -1,0 +1,20 @@
+{
+  "run_name": "phobert_no_wordseg",
+  "model_id": "vinai/phobert-base-v2",
+  "accuracy": 0.421,
+  "macro_f1": 0.42092556121155855,
+  "weighted_f1": 0.4209864538321652,
+  "params": 135000579,
+  "epochs_chạy": 8,
+  "train_seconds": 825.0,
+  "inference_ms_per_sample": 3.81,
+  "config": {
+    "learning_rate": 2e-05,
+    "batch_size": 32,
+    "grad_accum": 1,
+    "epochs": 8,
+    "warmup_ratio": 0.06,
+    "weight_decay": 0.01,
+    "patience": 3
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "run_name": "xlmr_large_finetuned",
+  "model_id": "xlm-roberta-large",
+  "accuracy": 0.455,
+  "macro_f1": 0.4060950720853341,
+  "weighted_f1": 0.40629555435795034,
+  "params": 559893507,
+  "epochs_chạy": 4,
+  "train_seconds": 2496.7,
+  "inference_ms_per_sample": 18.21,
+  "peak_vram_gb": 13.47
+}

@@ -1,17 +1,17 @@
 # Mô hình 4 — Mô hình tham khảo bên ngoài
 # Nguồn : https://huggingface.co/xlm-roberta-large
 # Biến thể zero-shot: joeddav/xlm-roberta-large-xnli (MIT)
+#   commit hash: b227ee8435ceadfa86dc1368a34254e2838bf242
 # License: MIT (xlm-roberta-large)
 # Mức độ sử dụng: fine-tune trên ViANLI + so sánh với zero-shot XNLI
 # Điều chỉnh so với gốc: thay classification head 3 lớp, fp16 + grad checkpointing
 run_name: xlmr_large_external
 family: transformer
 model_id: xlm-roberta-large
-revision: main            # ghi commit hash thật khi chốt kết quả
+revision: c23d21b0620b635a76227c604d44e43a9f0ee389   # commit hash chốt cho báo cáo
+license: mit
 word_segment: false       # XLM-R dùng SentencePiece, không cần tách từ
-premise_col: premise
-hypothesis_col: hypothesis
-label_col: label
+# Tên cột được dò tự động bằng data._resolve_columns() -> không khai báo ở đây.
 
 seed: 42
 max_length: 128

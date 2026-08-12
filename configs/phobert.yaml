@@ -2,11 +2,10 @@
 run_name: phobert_base_v2
 family: transformer
 model_id: vinai/phobert-base-v2
-revision: main            # ghi commit hash thật khi chốt kết quả
+revision: 86cd7fd4c148980922ac11a2cf5e257f2ba639e1   # commit hash chốt cho báo cáo
+license: agpl-3.0
 word_segment: true        # PhoBERT BẮT BUỘC tách từ trước
-premise_col: premise      # xác nhận lại bằng datasets.describe()
-hypothesis_col: hypothesis
-label_col: label
+# Tên cột được dò tự động bằng data._resolve_columns() -> không khai báo ở đây.
 
 seed: 42
 max_length: 128

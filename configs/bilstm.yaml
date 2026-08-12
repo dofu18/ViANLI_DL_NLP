@@ -2,9 +2,7 @@
 run_name: bilstm_attn
 family: rnn
 arch: bilstm
-premise_col: premise
-hypothesis_col: hypothesis
-label_col: label
+# Tên cột được dò tự động bằng data._resolve_columns() -> không khai báo ở đây.
 
 seed: 42
 max_length: 128
@@ -16,12 +14,10 @@ segment: true               # tách từ tiếng Việt trước khi build vocab
 num_workers: 2
 hidden: 256
 num_layers: 1
-bidirectional: true
 dropout: 0.5
 batch_size: 64
 epochs: 30
 learning_rate: 1.0e-3
-optimizer: adam
 early_stopping_patience: 5
 weight_decay: 0.0
 clip_grad: 5.0

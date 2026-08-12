@@ -31,15 +31,21 @@ PAD_ID, UNK_ID = 0, 1
 # Seed & chuẩn hóa văn bản
 # --------------------------------------------------------------------------- #
 def set_seed(seed: int = 42):
-    """Cố định seed cho random/numpy/torch. Seed phải được ghi trong báo cáo."""
+    """Cố định seed cho random/numpy/torch. Seed phải được ghi trong báo cáo.
+
+    Ghi chú: PYTHONHASHSEED phải được đặt TRƯỚC khi interpreter khởi động mới có tác
+    dụng, nên không đặt ở đây (đặt cũng vô ích). Khi cần, chạy:
+    `PYTHONHASHSEED=42 python src/train.py ...`
+    """
     random.seed(seed)
     np.random.seed(seed)
-    os.environ["PYTHONHASHSEED"] = str(seed)
     try:
         import torch
 
         torch.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
     except ImportError:
         pass
 
@@ -50,24 +56,54 @@ def normalize(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
-def word_segment(text: str) -> str:
-    """Tách từ tiếng Việt (bắt buộc trước khi đưa vào PhoBERT).
+_SEGMENTER = None  # cache backend đã dò được: ("underthesea", fn) hoặc ("none", None)
 
-    Dùng underthesea; nếu chưa cài thì trả nguyên văn bản.
+
+def _get_segmenter():
+    """Dò backend tách từ một lần duy nhất và in ra backend đang dùng.
+
+    Việc in ra là bắt buộc: bản chạy Kaggle trước đây rơi vào nhánh fallback im lặng
+    nên PhoBERT được huấn luyện trên văn bản CHƯA tách từ mà không ai biết, khiến
+    ablation `no_wordseg` trùng khít baseline.
     """
+    global _SEGMENTER
+    if _SEGMENTER is not None:
+        return _SEGMENTER
     try:
         from underthesea import word_tokenize
 
-        return word_tokenize(text, format="text")
+        _SEGMENTER = ("underthesea", lambda t: word_tokenize(t, format="text"))
     except ImportError:
+        _SEGMENTER = ("none", None)
+    print(f"[word_segment] backend = {_SEGMENTER[0]}")
+    return _SEGMENTER
+
+
+def word_segment(text: str, strict: bool = True) -> str:
+    """Tách từ tiếng Việt (bắt buộc trước khi đưa vào PhoBERT).
+
+    strict=True (mặc định): thiếu backend thì raise, KHÔNG âm thầm trả nguyên văn.
+    strict=False: cho phép fallback — chỉ dùng cho nhánh CNN/RNN, nơi tách từ là
+    tùy chọn chứ không phải yêu cầu của tokenizer.
+    """
+    name, fn = _get_segmenter()
+    if fn is None:
+        if strict:
+            raise RuntimeError(
+                "Không có backend tách từ tiếng Việt. PhoBERT-base-v2 yêu cầu đầu vào "
+                "đã tách từ. Cài bằng: pip install underthesea"
+            )
         return text
+    return fn(text)
 
 
 def tokenize(text: str, segment: bool = True) -> list[str]:
     """Tokenizer word-level cho nhánh CNN/RNN (nhánh A)."""
     text = normalize(text).lower()
     if segment:
-        text = word_segment(text)
+        # strict=False: nhánh CNN/RNN vẫn chạy được khi thiếu underthesea, khác với
+        # nhánh PhoBERT (tokenizer của nó giả định đầu vào đã tách từ).
+        text = word_segment(text, strict=False)
     return re.findall(r"\w+|[^\w\s]", text, flags=re.UNICODE)
 
 
@@ -91,12 +127,57 @@ def _resolve_columns(split) -> dict:
     }
 
 
-def load_splits(cache_dir: str | None = None, seed: int = 42):
+def load_local_splits():
+    """Đọc split ĐÃ CHỐT trong data/splits/*.csv (do 01_eda.ipynb sinh ra).
+
+    Trả về None nếu chưa có file. Đây là nguồn duy nhất đảm bảo CLI và notebook
+    chạy trên cùng một split — yêu cầu "so sánh công bằng" của đề bài.
+    """
+    paths = {name: os.path.join(SPLIT_DIR, f"{name}.csv")
+             for name in ("train", "validation", "test")}
+    if not all(os.path.exists(p) for p in paths.values()):
+        return None
+    import pandas as pd
+
+    frames = {name: pd.read_csv(p, encoding="utf-8") for name, p in paths.items()}
+    try:
+        from datasets import Dataset, DatasetDict
+    except ImportError:
+        # Nhánh CNN/RNN không cần Hugging Face datasets — chỉ nhánh Transformer mới cần.
+        return {name: _CsvSplit(df) for name, df in frames.items()}
+    return DatasetDict({name: Dataset.from_pandas(df, preserve_index=False)
+                        for name, df in frames.items()})
+
+
+class _CsvSplit:
+    """Split đọc từ CSV với API tối thiểu mà nhánh CNN/RNN dùng tới."""
+
+    def __init__(self, df):
+        self._df = df
+        self.column_names = list(df.columns)
+
+    def __len__(self):
+        return len(self._df)
+
+    def __getitem__(self, key):
+        if isinstance(key, str):
+            return self._df[key].tolist()
+        return self._df.iloc[key].to_dict()
+
+
+def load_splits(cache_dir: str | None = None, seed: int = 42, prefer_local: bool = True):
     """Trả về (DatasetDict, dict tên cột) với các split gốc của ViANLI.
 
+    Ưu tiên `data/splits/*.csv` nếu có; nếu không thì tải từ Hugging Face.
     Nếu không có split validation, tách 10% từ train (stratify theo nhãn, seed cố
     định). Test set không bao giờ bị đụng tới ở đây.
     """
+    if prefer_local:
+        local = load_local_splits()
+        if local is not None:
+            print(f"[data] dùng split cố định trong {SPLIT_DIR}")
+            return local, _resolve_columns(local["train"])
+
     from datasets import load_dataset
 
     ds = load_dataset(HF_DATASET_ID, cache_dir=cache_dir)
@@ -242,10 +323,21 @@ class NLIPairDataset:
         )
 
 
+def _worker_init(worker_id: int):
+    """Mỗi worker có seed dẫn xuất cố định — bắt buộc để tái lập với num_workers>0."""
+    seed = 42 + worker_id
+    random.seed(seed)
+    np.random.seed(seed)
+
+
 def make_loaders(ds, cols, vocab, batch_size=64, max_len=128, segment=True,
-                 hypothesis_only=False, num_workers=2):
+                 hypothesis_only=False, num_workers=2, seed=42):
     """Tạo DataLoader cho train/validation/test với cùng cấu hình."""
+    import torch
     from torch.utils.data import DataLoader
+
+    generator = torch.Generator()
+    generator.manual_seed(seed)
 
     loaders = {}
     for name in ("train", "validation", "test"):
@@ -253,5 +345,6 @@ def make_loaders(ds, cols, vocab, batch_size=64, max_len=128, segment=True,
         loaders[name] = DataLoader(
             dataset, batch_size=batch_size, shuffle=(name == "train"),
             num_workers=num_workers, drop_last=(name == "train"),
+            worker_init_fn=_worker_init, generator=generator,
         )
     return loaders
