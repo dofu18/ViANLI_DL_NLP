@@ -1,12 +1,12 @@
 {
   "run_name": "bilstm_hyponly",
   "arch": "bilstm",
-  "accuracy": 0.334,
-  "macro_f1": 0.16691654172913542,
-  "weighted_f1": 0.1672503748125937,
-  "params": 3804448,
-  "epochs_chạy": 6,
-  "train_seconds": 40.1,
+  "accuracy": 0.351,
+  "macro_f1": 0.3405392900422157,
+  "weighted_f1": 0.34059988069567637,
+  "params": 5045848,
+  "epochs_chạy": 7,
+  "train_seconds": 53.3,
   "config": {
     "seed": 42,
     "epochs": 30,
@@ -21,6 +21,8 @@
     "dropout": 0.5,
     "max_length": 128,
     "hypothesis_only": true,
-    "pretrained_emb": "none"
-  }
+    "pretrained_emb": "none",
+    "segment": true
+  },
+  "word_segment": true
 }

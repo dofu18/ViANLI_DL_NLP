@@ -6,8 +6,10 @@
   "weighted_f1": 0.4209864538321652,
   "params": 135000579,
   "epochs_chạy": 8,
-  "train_seconds": 825.0,
-  "inference_ms_per_sample": 3.81,
+  "train_seconds": 771.8,
+  "inference_ms_per_sample": 3.49,
+  "peak_vram_gb": 4.0,
+  "word_segment": false,
   "config": {
     "learning_rate": 2e-05,
     "batch_size": 32,

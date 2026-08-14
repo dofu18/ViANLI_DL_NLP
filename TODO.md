@@ -13,69 +13,52 @@ nhau ở mọi lần chạy nên 4 mô hình so sánh được với nhau.
 | Majority baseline | 0.334 | — | mốc ngẫu nhiên |
 | TF-IDF hypothesis-only | 0.318 | — | < majority → không có bias hypothesis-only |
 | TF-IDF premise-only | 0.039 | — | dưới ngẫu nhiên **do thiết kế**, xem `PLAN.md` |
-| **textcnn** | 0.322 | — | mô hình 1 |
-| **bilstm_attn** | 0.374 | — | mô hình 2 |
-| **phobert_base_v2** | 0.421 | 0.4209 | mô hình 3 |
+| **textcnn** | 0.334 | 0.3274 | mô hình 1 |
+| **bilstm_attn** | 0.379 | 0.3659 | mô hình 2 |
+| **phobert_base_v2** | **0.470** | **0.4659** | mô hình 3 — **tốt nhất** |
 | **xlmr_large_finetuned** | 0.449 | 0.3721 | mô hình 4, 5 epoch, 2807s |
-| xlmr_xnli_finetuned | 0.423 | **0.4190** | ablation: khởi tạo từ checkpoint XNLI |
+| xlmr_xnli_finetuned | 0.423 | 0.4190 | ablation: khởi tạo từ checkpoint XNLI |
 | xlmr_zeroshot | 0.334 | 0.3246 | ablation: không fine-tune |
-| bilstm_hyponly | 0.334 | — | ablation |
-| bilstm_dropout02 | 0.352 | — | ablation |
-| bilstm_maxlen64 | 0.349 | — | ablation |
-| phobert_hyponly | 0.375 | — | ablation |
-| phobert_lr5e-5 | 0.418 | — | ablation |
-| phobert_no_wordseg | 0.421 | 0.4209 | **KHÔNG hợp lệ — xem bên dưới** |
+| bilstm_hyponly | 0.351 | 0.3405 | ablation |
+| bilstm_dropout02 | 0.403 | 0.3963 | ablation — **cao hơn baseline**, xem dưới |
+| bilstm_maxlen64 | 0.380 | 0.3621 | ablation |
+| phobert_hyponly | 0.416 | 0.4093 | ablation |
+| phobert_lr5e-5 | 0.450 | 0.4479 | ablation |
+| phobert_no_wordseg | 0.421 | 0.4209 | ablation — Δ = **−0.049** so với base |
 
-**Cảnh báo:** mọi số của TextCNN, BiLSTM và PhoBERT ở trên đều là kết quả chạy trên văn
-bản **chưa tách từ** (xem mục 1 phần Việc còn lại). Chỉ 3 run XLM-R là dùng được ngay.
+Tất cả 12 run đều dùng cùng split, cùng seed 42, cùng `max_length=128`, và (trừ nhánh
+`no_wordseg` cố ý) đều tách từ bằng `underthesea`. `shared_vocab.txt`: 5247/9503 token
+có dấu `_` — xác nhận tách từ chạy thật.
 
-Điểm đáng viết vào báo cáo: `xlmr_large_finetuned` accuracy cao nhất (0.449) nhưng
-macro-F1 chỉ 0.372 vì gần như bỏ hẳn lớp *contradiction* (phân bố dự đoán
-465/514/**21**). `xlmr_xnli_finetuned` accuracy thấp hơn (0.423) nhưng dự đoán cân
-(346/399/255) nên macro-F1 cao nhất toàn bộ thí nghiệm (0.419). Đây là luận điểm
-"accuracy một mình không đủ để kết luận".
+### Bốn điểm đáng viết vào báo cáo
+
+1. **Tách từ đáng giá 4,9 điểm với PhoBERT.** `phobert_base_v2` 0.470 vs `no_wordseg`
+   0.421. Con số 0.421 trùng khít kết quả của lần chạy hỏng trước đó — bằng chứng sạch
+   rằng lần đó thực chất là chạy không tách từ. Đây là nhánh ablation mạnh nhất của đồ án.
+2. **PhoBERT (135M, 0.470) vượt XLM-R large (560M, 0.449).** Mô hình chuyên biệt tiếng
+   Việt thắng mô hình đa ngữ lớn gấp 4 lần — luận điểm chính cho §Chi phí tính toán.
+3. **Accuracy một mình không đủ.** `xlmr_large_finetuned` accuracy 0.449 nhưng macro-F1
+   chỉ 0.372 vì gần như bỏ hẳn lớp *contradiction* (dự đoán 465/514/**21**).
+   `xlmr_xnli_finetuned` accuracy thấp hơn (0.423) nhưng dự đoán cân (346/399/255) nên
+   macro-F1 cao hơn (0.419). Lý do bắt buộc phải báo cáo cả hai metric.
+4. **`bilstm_dropout02` (0.403) cao hơn baseline `bilstm_attn` (0.379)** → dropout 0.5
+   quá mạnh cho mô hình 5M tham số. Đáng bàn, **nhưng giữ `bilstm_attn` làm mô hình 2
+   chính thức** — không được chọn nhánh tốt nhất post-hoc rồi gọi đó là baseline.
 
 ---
 
 ## Việc còn lại
 
-### 1. Chạy lại `02_cnn_rnn.ipynb` VÀ `03_phobert.ipynb` — cả hai train trên text chưa tách từ
+### 1. ~~Chạy lại nb 02 và nb 03~~ ✅ XONG (2026-08-14 chiều)
 
-`underthesea` không có sẵn trên Kaggle → `word_segment()` fallback im lặng → **9 run
-trong `outputs/` hiện tại đều dùng văn bản chưa tách từ**, dù `SEGMENT = True`.
+Đã chạy lại, tách từ hoạt động (`backend = underthesea`, vocab 5247/9503 token có `_`),
+kết quả đã gộp vào `outputs/`, audit 12/12 khớp. Xem bảng ở đầu file.
 
-Bằng chứng:
-
-- `outputs/checkpoints/shared_vocab.txt`: 0/5365 token chứa `_` (nb 02)
-- `phobert_no_wordseg` trùng **từng bit** với `phobert_base_v2`, macro-F1 khớp tới 14
-  chữ số → nhánh "bỏ tách từ" thực chất không bỏ gì (nb 03)
-
-Mức độ khác nhau giữa hai notebook:
-
-- **nb 03 là lỗi thật.** PhoBERT-base-v2 pretrain trên văn bản đã tách từ, cho ăn text
-  thô là dùng sai mô hình. Con số 0.421 đang bị ghi nhầm nhãn. Bắt buộc chạy lại.
-- **nb 02 nhẹ hơn** — tách từ chỉ là *tùy chọn* cho CNN/RNN, kết quả 0.322/0.374 vẫn
-  hợp lệ, chỉ bị mô tả sai. Nhưng phải chạy lại để 4 mô hình cùng điều kiện tiền xử lý,
-  nếu không thì phần "nguyên tắc so sánh công bằng" của báo cáo không đứng được.
-  Phương án rẻ: giữ kết quả cũ, đổi `SEGMENT = False` cho khớp sự thật và ghi rõ trong
-  báo cáo. Trung thực nhưng yếu hơn.
-
-Code đã vá xong (commit `52b429a`): assert chặn ở cả hai notebook, `segmented` tường
-minh trong summary, `save_preds()` ghi npy ngay sau từng run. Chạy lại là chạy đúng.
-
-Khi chạy, kiểm hai dòng đầu trước khi để nó train tiếp:
-
-```
-[word_segment] backend = underthesea          <- không được là none
-Tách từ: Tọa_đàm được tổ_chức tại Hà_Nội      <- phải có dấu _
-```
-
-**Lưu ý:** mọi số của TextCNN/BiLSTM/PhoBERT sẽ đổi, kể cả hai mô hình chính. Đừng viết
-chương Kết quả trước khi có bộ số mới. nb 01 (EDA) và nb 04 (XLM-R) không ảnh hưởng —
-nb 01 gọi `tokenize(segment=False)` tường minh, nb 04 dùng SentencePiece.
-
-Thứ tự: push code → Kaggle Save & Run All nb 02 (~1-2h) → nb 03 (~2-3h) → tải về
-`results/5`, `results/6`.
+Một chi tiết đã sửa tay khi gộp: hai notebook chạy bằng code **trước** commit `52b429a`
+nên `phobert_hyponly_summary.json` ghi `word_segment: false` (lỗi suy bằng
+`enc is encoded`) và các summary của nb 02 thiếu hẳn trường này. Đã sửa thành `true` —
+đúng với thực tế, vì cả hai log đều xác nhận backend là `underthesea`. Lần chạy sau sẽ
+tự ghi đúng nhờ tham số `segmented`.
 
 ### 2. Chạy `05_analysis.ipynb` (CPU, ~2 phút)
 
