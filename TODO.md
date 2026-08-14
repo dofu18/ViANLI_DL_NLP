@@ -11,7 +11,8 @@ nhau ở mọi lần chạy nên 4 mô hình so sánh được với nhau.
 | Run | Accuracy | Macro-F1 | Ghi chú |
 |---|---|---|---|
 | Majority baseline | 0.334 | — | mốc ngẫu nhiên |
-| TF-IDF hypothesis-only | 0.318 | — | |
+| TF-IDF hypothesis-only | 0.318 | — | < majority → không có bias hypothesis-only |
+| TF-IDF premise-only | 0.039 | — | dưới ngẫu nhiên **do thiết kế**, xem `PLAN.md` |
 | **textcnn** | 0.322 | — | mô hình 1 |
 | **bilstm_attn** | 0.374 | — | mô hình 2 |
 | **phobert_base_v2** | 0.421 | 0.4209 | mô hình 3 |
