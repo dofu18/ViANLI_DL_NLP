@@ -35,8 +35,13 @@ có dấu `_` — xác nhận tách từ chạy thật.
 1. **Tách từ đáng giá 4,9 điểm với PhoBERT.** `phobert_base_v2` 0.470 vs `no_wordseg`
    0.421. Con số 0.421 trùng khít kết quả của lần chạy hỏng trước đó — bằng chứng sạch
    rằng lần đó thực chất là chạy không tách từ. Đây là nhánh ablation mạnh nhất của đồ án.
-2. **PhoBERT (135M, 0.470) vượt XLM-R large (560M, 0.449).** Mô hình chuyên biệt tiếng
-   Việt thắng mô hình đa ngữ lớn gấp 4 lần — luận điểm chính cho §Chi phí tính toán.
+2. **PhoBERT (135M, 0.470) và XLM-R large (560M, 0.449) — chênh lệch KHÔNG có ý nghĩa
+   thống kê.** McNemar: chỉ PhoBERT đúng 213 mẫu, chỉ XLM-R đúng 192 mẫu, **p = 0.32**.
+   Phải viết là "ngang nhau về accuracy" chứ **không được** viết "PhoBERT tốt hơn".
+   Luận điểm đúng và vẫn rất mạnh: PhoBERT đạt cùng mức chất lượng với **1/4 số tham số,
+   1/4 thời gian train (10,9 vs 46,8 phút) và 1/5 thời gian suy luận (3,02 vs 16,23
+   ms/mẫu)**. Đó mới là nội dung cho §Chi phí tính toán.
+   Khác biệt thật sự nằm ở macro-F1 (0.466 vs 0.372) — xem điểm 3.
 3. **Accuracy một mình không đủ.** `xlmr_large_finetuned` accuracy 0.449 nhưng macro-F1
    chỉ 0.372 vì gần như bỏ hẳn lớp *contradiction* (dự đoán 465/514/**21**).
    `xlmr_xnli_finetuned` accuracy thấp hơn (0.423) nhưng dự đoán cân (346/399/255) nên
@@ -60,7 +65,49 @@ nên `phobert_hyponly_summary.json` ghi `word_segment: false` (lỗi suy bằng
 đúng với thực tế, vì cả hai log đều xác nhận backend là `underthesea`. Lần chạy sau sẽ
 tự ghi đúng nhờ tham số `segmented`.
 
-### 2. Chạy `05_analysis.ipynb` (CPU, ~2 phút)
+### 2. ~~Chạy `05_analysis.ipynb`~~ ✅ XONG — chạy local, không cần Kaggle
+
+Đã sinh đủ: `main_comparison.png`, `ablation.csv` + `ablation.png`, `per_class.csv`,
+`accuracy_by_group.csv`, `cost_vs_accuracy.png`, `error_examples.csv`, bảng LaTeX của
+bảng kết quả chính, ma trận đồng thuận và McNemar test.
+
+Chạy lại bất cứ lúc nào bằng (cần cwd là `notebooks/`):
+
+```
+jupyter nbconvert --to notebook --execute --inplace 05_analysis.ipynb
+```
+
+**Số liệu chính lấy được:**
+
+- **Ablation xếp theo mức ảnh hưởng** (`ablation.csv`): zero-shot XNLI −0.115 | PhoBERT
+  chỉ-hypothesis −0.054 | **bỏ tách từ −0.049** | BiLSTM chỉ-hypothesis −0.028 |
+  khởi tạo từ XNLI −0.026 (nhưng macro-F1 **+0.047**) | lr 5e-5 −0.020 |
+  max_len 64 +0.001 | dropout 0.2 **+0.024**.
+- **F1 theo lớp** (`per_class.csv`): lớp *contradiction* — TextCNN 0.329, BiLSTM 0.264,
+  PhoBERT 0.449, **XLM-R large 0.040**. XLM-R gần như không dự đoán lớp này.
+- **21,2% mẫu (212/1000) mọi mô hình đều sai**, 78,8% có ít nhất một mô hình đúng.
+  Con số 212 này là nhân của phần thảo luận về tính adversarial.
+- **Đồng thuận giữa các mô hình** thấp: PhoBERT ↔ XLM-R chỉ 0.501, TextCNN ↔ XLM-R 0.382.
+  Bốn mô hình sai ở những chỗ khác nhau → chúng học các tín hiệu khác nhau.
+- **Accuracy theo nhóm** (`accuracy_by_group.csv`): mọi mô hình đều kém nhất ở nhóm
+  overlap **cao** giữa premise và hypothesis (PhoBERT 0.431 vs 0.499 ở nhóm overlap thấp).
+  Đúng đặc trưng adversarial: câu giống nhau về từ ngữ nhưng khác nhau về nghĩa.
+- Test có 16,1% hypothesis chứa từ phủ định, 37,7% chứa số.
+- **TextCNN 0.334 = đúng bằng majority baseline 0.334.** Ô "Mọi mô hình vượt majority"
+  in ra `False` là vì vậy — không phải lỗi. Phải nói thẳng trong báo cáo: TextCNN không
+  học được gì vượt mức đoán nhãn đa số.
+
+### 3. Chạy lại nb 02 (~7 phút GPU) để lấy thời gian suy luận — tùy chọn nhưng nên làm
+
+Bảng §Chi phí tính toán đang trống ô `inference_ms_per_sample` cho TextCNN và BiLSTM
+(nb 02 chưa đo, nb 03/04 thì có). Đã thêm đoạn đo vào `run()` của nb 02, cùng cách đo
+với hai notebook kia để bốn mô hình so được với nhau.
+
+Rẻ: 5 run của nb 02 chỉ mất ~390 giây train. Và pipeline đã chứng minh là tất định
+(`phobert_no_wordseg` chạy lại ra predictions trùng từng bit), nên **mọi con số khác sẽ
+giữ nguyên**, chỉ thêm cột còn thiếu.
+
+Nếu không chạy lại thì phải để dấu "—" ở hai ô đó trong báo cáo và ghi rõ lý do.
 
 Chưa chạy lần nào với bộ dữ liệu đầy đủ. Sinh ra:
 `main_comparison.png`, `ablation.csv` + `ablation.png`, `per_class.csv`,

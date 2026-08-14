@@ -1,0 +1,11 @@
+Nhóm,Giá trị,1. CNN-based (TextCNN),2. RNN-based (BiLSTM+attn),3. Transformer (PhoBERT),4. External (XLM-R large)
+có_phủ_định,False,0.348,0.3814,0.4708,0.4529
+có_phủ_định,True,0.2609,0.3665,0.4658,0.4286
+có_số,False,0.3387,0.3692,0.4751,0.4526
+có_số,True,0.3263,0.3952,0.4615,0.443
+nhóm_overlap,cao,0.2831,0.3886,0.4307,0.4488
+nhóm_overlap,thấp,0.3828,0.4451,0.4985,0.5015
+nhóm_overlap,vừa,0.3353,0.3021,0.4804,0.3958
+nhóm_độ_dài,dài,0.3456,0.3761,0.4801,0.4128
+nhóm_độ_dài,ngắn,0.3324,0.358,0.4858,0.4773
+nhóm_độ_dài,trung bình,0.324,0.405,0.4424,0.4548
