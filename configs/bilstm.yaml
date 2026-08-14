@@ -7,8 +7,10 @@ arch: bilstm
 seed: 42
 max_length: 128
 emb_dim: 300
-pretrained_emb: phow2v      # phow2v | fasttext | none  -> nhánh ablation
-emb_path: data/raw/word2vec_vi_words_300dims.txt   # tải PhoW2V; để trống -> random init
+pretrained_emb: none        # phow2v | fasttext | none  -> nhánh ablation
+# Kết quả trong báo cáo dùng embedding KHỞI TẠO NGẪU NHIÊN vì chưa nạp PhoW2V.
+# Muốn bật: tải PhoW2V về đúng đường dẫn dưới rồi đổi pretrained_emb thành phow2v.
+emb_path: data/raw/word2vec_vi_words_300dims.txt
 min_freq: 2
 segment: true               # tách từ tiếng Việt trước khi build vocab
 num_workers: 2
