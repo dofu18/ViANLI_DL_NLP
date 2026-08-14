@@ -1,0 +1,11 @@
+{
+  "run_name": "xlmr_zeroshot",
+  "model_id": "joeddav/xlm-roberta-large-xnli",
+  "accuracy": 0.334,
+  "macro_f1": 0.3246131097622273,
+  "weighted_f1": 0.3246432136335971,
+  "params": 559893507,
+  "epochs_chạy": 0,
+  "train_seconds": 0.0,
+  "inference_ms_per_sample": 4.65
+}

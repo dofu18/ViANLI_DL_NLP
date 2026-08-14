@@ -1,0 +1,4 @@
+run_name,model_id,accuracy,macro_f1,weighted_f1,params,epochs_chạy,train_seconds,inference_ms_per_sample,peak_vram_gb
+xlmr_zeroshot,joeddav/xlm-roberta-large-xnli,0.334,0.3246131097622273,0.3246432136335971,559893507,0,0.0,4.65,
+xlmr_large_finetuned,xlm-roberta-large,0.449,0.37209451746691097,0.37230565198573934,559893507,5,2807.2,16.23,13.47
+xlmr_xnli_finetuned,joeddav/xlm-roberta-large-xnli,0.423,0.41901405370891526,0.41905092200814753,559893507,3,2638.0,25.28,13.47
