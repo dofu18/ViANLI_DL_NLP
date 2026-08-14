@@ -166,13 +166,13 @@
 \newcommand{\UniversityName}{FPT SCHOOL OF BUSINESS \& TECHNOLOGY}
 \newcommand{\CourseName}{DEEP LEARNING}
 \newcommand{\CourseCode}{AIN501}
-\newcommand{\ReportTitle}{TÊN ĐỀ TÀI ĐỒ ÁN}
-\newcommand{\DatasetName}{Tên bộ dữ liệu}
-\newcommand{\ClassName}{Lớp: \textit{AIN501.xx}}
-\newcommand{\GroupName}{Nhóm: \textit{XX}}
-\newcommand{\InstructorName}{Giảng viên: \textit{Họ và tên giảng viên}}
-\newcommand{\SemesterName}{Học kỳ: \textit{Fall/Spring/Summer 20XX}}
-\newcommand{\SubmissionDate}{Ngày nộp: \textit{dd/mm/yyyy}}
+\newcommand{\ReportTitle}{SUY LUẬN NGÔN NGỮ TỰ NHIÊN TIẾNG VIỆT TRÊN BỘ DỮ LIỆU ĐỐI KHÁNG ViANLI}
+\newcommand{\DatasetName}{ViANLI (UIT-NLP)}
+\newcommand{\ClassName}{Lớp: \textit{AIN501.\todoText{xx}}}
+\newcommand{\GroupName}{\todoText{Họ và tên -- MSSV}}
+\newcommand{\InstructorName}{Giảng viên: \textit{\todoText{Họ và tên giảng viên}}}
+\newcommand{\SemesterName}{Học kỳ: \textit{\todoText{Fall/Spring/Summer 20XX}}}
+\newcommand{\SubmissionDate}{Ngày nộp: \textit{\todoText{dd/mm/yyyy}}}
 
 % ---------- Background commands ----------
 \newcommand{\SetCoverBackground}{%
@@ -312,59 +312,118 @@ Vì vậy, báo cáo không chỉ trình bày điểm số tốt nhất mà còn
 \setcounter{page}{1}
 
 \chapter{Tóm tắt}
-\begin{instructionbox}
-Viết 200--300 từ, tóm tắt: bài toán, bộ dữ liệu, bốn mô hình đã thực nghiệm, metric chính, kết quả nổi
-bật và kết luận quan trọng. Không đưa trích dẫn, bảng hoặc hình vào phần này.
-\end{instructionbox}
 
-\todoText{Viết tóm tắt đồ án tại đây.}
+Đồ án giải quyết bài toán suy luận ngôn ngữ tự nhiên (Natural Language Inference --- NLI)
+cho tiếng Việt trên bộ dữ liệu \textbf{ViANLI}, một benchmark \textit{đối kháng}
+(adversarial) do nhóm UIT-NLP xây dựng. Nhiệm vụ là phân loại ba lớp cho mỗi cặp câu
+(tiền đề, giả thuyết): \textit{entailment}, \textit{neutral} hoặc \textit{contradiction}.
+Bộ dữ liệu gồm 10.012 mẫu, chia cố định thành 8.012 / 1.000 / 1.000 cho train, validation
+và test.
+
+Bốn mô hình được huấn luyện và đánh giá trên cùng một giao thức --- cùng phân chia dữ
+liệu, cùng seed 42, cùng độ dài tối đa 128, cùng tiêu chí chọn checkpoint là macro-F1 trên
+tập validation, và test set chỉ được dùng đúng một lần: TextCNN (họ CNN), BiLSTM kèm
+attention pooling (họ RNN), PhoBERT-base-v2 dạng cross-encoder (họ Transformer) và
+XLM-RoBERTa large (mô hình tham khảo bên ngoài).
+
+Metric chính là accuracy, metric phụ bắt buộc là macro-F1. PhoBERT đạt kết quả tốt nhất
+với accuracy 0,470 và macro-F1 0,466; XLM-R large đạt accuracy 0,449 nhưng macro-F1 chỉ
+0,372. Kiểm định McNemar cho thấy chênh lệch accuracy giữa hai mô hình này \textbf{không
+có ý nghĩa thống kê} ($p = 0{,}32$), trong khi PhoBERT chỉ dùng một phần tư số tham số và
+một phần năm thời gian suy luận. Hai mô hình từ đầu (TextCNN 0,334 và BiLSTM 0,379) gần
+như không vượt được mốc đoán nhãn đa số 0,334.
+
+Đóng góp thực nghiệm đáng chú ý nhất là phân tích ablation: bỏ bước tách từ tiếng Việt làm
+PhoBERT mất 4,9 điểm accuracy, và có tới 21,2\% số mẫu test mà cả bốn mô hình đều dự đoán
+sai. Cả hai kết quả, cùng với việc baseline chỉ-tiền-đề đạt 0,039 --- thấp hơn nhiều so
+với mức ngẫu nhiên --- khẳng định ViANLI thực sự loại bỏ các đường tắt thống kê và buộc mô
+hình phải đối chiếu ngữ nghĩa giữa hai câu.
 
 \vspace{5mm}
-\noindent\textbf{Từ khóa:} \todoText{3--6 từ khóa, phân cách bằng dấu chấm phẩy.}
+\noindent\textbf{Từ khóa:} suy luận ngôn ngữ tự nhiên; tiếng Việt; dữ liệu đối kháng;
+PhoBERT; XLM-RoBERTa; tách từ tiếng Việt.
 
 \chapter{Giới thiệu bài toán}
 
 \section{Bối cảnh và động lực}
-\begin{instructionbox}
-Trình bày bối cảnh thực tế, đối tượng sử dụng, ý nghĩa của bài toán và lý do lựa chọn chủ đề. Nêu rõ
-đầu vào, đầu ra và loại tác vụ: classification, detection, sequence labeling, QA, VQA, image captioning,
-multimodal learning, v.v.
-\end{instructionbox}
-\todoText{Mô tả bối cảnh và động lực.}
+
+Suy luận ngôn ngữ tự nhiên là bài toán nền tảng của hiểu ngôn ngữ: cho một câu
+\textit{tiền đề} và một câu \textit{giả thuyết}, mô hình phải xác định giả thuyết được
+suy ra từ tiền đề, mâu thuẫn với tiền đề, hay không xác định được. Năng lực này là thành
+phần lõi của nhiều hệ thống thực tế --- kiểm chứng thông tin, hỏi đáp trên văn bản, tóm
+tắt trung thực, và gần đây là đánh giá tính nhất quán của đầu ra mô hình sinh.
+
+Với tiếng Anh, các bộ dữ liệu như SNLI và MultiNLI đã bị các mô hình hiện đại đạt trên
+90\% accuracy. Tuy nhiên, nhiều nghiên cứu chỉ ra rằng phần lớn kết quả đó đến từ
+\textit{annotation artifact}: mô hình chỉ cần nhìn giả thuyết cũng đoán đúng nhãn ở mức
+cao hơn nhiều so với ngẫu nhiên. Các benchmark đối kháng ra đời để bịt lỗ hổng này: người
+gán nhãn được yêu cầu viết những giả thuyết mà mô hình hiện tại dự đoán sai, khiến dữ liệu
+không còn đường tắt thống kê.
+
+ViANLI là bộ dữ liệu đối kháng đầu tiên cho NLI tiếng Việt \cite{vianli}. Đồ án chọn bộ
+này vì hai lý do. Thứ nhất, tiếng Việt là ngôn ngữ có tài nguyên hạn chế và đặc thù về
+hình thái --- ranh giới từ không trùng ranh giới âm tiết --- nên là môi trường tốt để so
+sánh mô hình đơn ngữ chuyên biệt với mô hình đa ngữ. Thứ hai, tính đối kháng khiến các con
+số accuracy thấp và sát nhau, buộc phần phân tích phải đi vào chiều sâu thay vì dừng ở
+việc so bảng điểm.
 
 \section{Phát biểu bài toán}
-Hãy mô tả bài toán bằng ký hiệu hoặc quy trình rõ ràng. Ví dụ với phân loại đa lớp:
-\begin{equation}
-  f_{\theta}: \mathcal{X} \rightarrow \{1,2,\ldots,K\},
-\end{equation}
-trong đó $\mathcal{X}$ là không gian đầu vào, $K$ là số lớp và $\theta$ là tham số mô hình.
 
-\todoText{Điều chỉnh phát biểu toán học theo đề tài.}
+Đây là bài toán phân loại đơn nhãn ba lớp trên cặp câu. Gọi $\mathcal{V}^{*}$ là tập các
+chuỗi văn bản tiếng Việt, mô hình cần học ánh xạ
+
+\begin{equation}
+  f_{\theta}: \mathcal{V}^{*} \times \mathcal{V}^{*} \rightarrow
+  \{\text{entailment}, \text{neutral}, \text{contradiction}\},
+\end{equation}
+
+trong đó đầu vào là cặp $(p, h)$ gồm tiền đề $p$ và giả thuyết $h$, còn $\theta$ là tham
+số mô hình. Trong cài đặt, ba nhãn được mã hóa thành $\{0, 1, 2\}$ theo đúng thứ tự trên.
+Mô hình xuất ra phân phối xác suất $\hat{p} \in \Delta^{2}$ trên ba lớp và dự đoán là lớp
+có xác suất lớn nhất.
+
+Điểm cần nhấn mạnh về mặt thiết kế: bài toán \textbf{không} tách rời được thành hai bài
+toán con trên $p$ và $h$. Quan hệ suy luận chỉ tồn tại ở mức cặp, nên kiến trúc nào cho
+phép hai câu tương tác sớm và sâu sẽ có lợi thế --- đây chính là giả thuyết mà chương phân
+tích sẽ kiểm chứng bằng số liệu.
 
 \section{Mục tiêu và câu hỏi thực nghiệm}
-\begin{enumerate}[leftmargin=*]
-  \item \todoText{Mục tiêu 1: xây dựng các baseline thuộc nội dung học phần.}
-  \item \todoText{Mục tiêu 2: so sánh với mô hình bên ngoài.}
-  \item \todoText{Mục tiêu 3: phân tích ảnh hưởng của dữ liệu/siêu tham số.}
+
+\begin{enumerate}[leftmargin=*,itemsep=3pt]
+  \item Xây dựng và huấn luyện ba mô hình thuộc ba họ kiến trúc trong nội dung học phần
+        (CNN, RNN/LSTM, Transformer) trên cùng một giao thức đánh giá công bằng.
+  \item So sánh với một mô hình tham khảo bên ngoài quy mô lớn (XLM-RoBERTa large), đồng
+        thời đo mức đóng góp của pretraining đa ngữ và của transfer learning từ XNLI.
+  \item Phân tích định lượng ảnh hưởng của các yếu tố dữ liệu và siêu tham số thông qua
+        tám nhánh ablation, và phân tích lỗi có chiều sâu trên mô hình tốt nhất.
 \end{enumerate}
 
-\noindent\textbf{Câu hỏi thực nghiệm gợi ý:}
-\begin{itemize}[leftmargin=*]
-  \item Họ kiến trúc nào phù hợp nhất với dữ liệu và vì sao?
-  \item Pretraining/transfer learning cải thiện kết quả đến mức nào?
-  \item Mô hình nào đạt cân bằng tốt giữa chất lượng, thời gian và số tham số?
-  \item Mô hình thường sai ở những nhóm mẫu nào?
+\noindent\textbf{Bốn câu hỏi thực nghiệm được trả lời trong báo cáo:}
+
+\begin{itemize}[leftmargin=*,itemsep=3pt]
+  \item \textbf{CH1.} Họ kiến trúc nào phù hợp nhất với NLI tiếng Việt, và cơ chế nào tạo
+        ra khác biệt --- số tham số hay khả năng cho hai câu tương tác?
+  \item \textbf{CH2.} Pretraining đóng góp bao nhiêu, và mô hình đơn ngữ chuyên biệt có
+        thắng được mô hình đa ngữ lớn hơn gấp bốn lần không?
+  \item \textbf{CH3.} Tách từ tiếng Việt --- bước tiền xử lý đặc thù của PhoBERT --- đáng
+        giá bao nhiêu điểm?
+  \item \textbf{CH4.} Mô hình sai ở những nhóm mẫu nào, và các mô hình khác họ có sai ở
+        cùng chỗ hay không?
 \end{itemize}
-
-
 
 \chapter{Bộ dữ liệu và tiền xử lý}
 
 \section{Nguồn và giấy phép dữ liệu}
-\begin{instructionbox}
-Ghi tên bộ dữ liệu, URL, tác giả/đơn vị cung cấp, phiên bản, giấy phép, ngày truy cập và phạm vi sử dụng.
-Nếu dữ liệu có thông tin nhạy cảm, cần mô tả biện pháp ẩn danh và giới hạn đạo đức.
-\end{instructionbox}
+
+Bộ dữ liệu do nhóm UIT-NLP (Trường Đại học Công nghệ Thông tin, ĐHQG-HCM) xây dựng và công
+bố kèm bài báo trên tạp chí \textit{Expert Systems with Applications} \cite{vianli}. Dữ
+liệu được phát hành công khai trên Hugging Face Hub dưới giấy phép
+\textbf{CC BY-NC-SA 4.0}. Đồ án sử dụng cho mục đích học tập, phi thương mại --- đúng
+phạm vi mà giấy phép cho phép --- và không phát hành lại dữ liệu.
+
+Dữ liệu là văn bản báo chí tiếng Việt công khai (phần lớn là tin tức thời sự, thể thao,
+kinh tế), không chứa thông tin định danh cá nhân nhạy cảm, nên không cần bước ẩn danh hóa.
+Phiên bản sử dụng được cố định bằng commit hash để bảo đảm khả năng tái lập.
 
 \begin{table}[H]
 \centering
@@ -373,148 +432,436 @@ Nếu dữ liệu có thông tin nhạy cảm, cần mô tả biện pháp ẩn 
 \toprule
 \textbf{Thuộc tính} & \textbf{Nội dung} \\
 \midrule
-Tên bộ dữ liệu & \DatasetName \\
-Nguồn/URL & \todoText{Chèn liên kết} \\
-Loại dữ liệu & \todoText{Ảnh/văn bản/chuỗi thời gian/đa phương thức} \\
-Số mẫu & \todoText{Tổng số mẫu và số mẫu theo split} \\
-Số lớp/nhãn & \todoText{Số lớp, multi-label hay single-label} \\
-Giấy phép & \todoText{Tên giấy phép hoặc điều khoản sử dụng} \\
+Tên bộ dữ liệu & ViANLI --- Vietnamese Adversarial Natural Language Inference \\
+Nguồn/URL & \url{https://huggingface.co/datasets/uitnlp/ViANLI} \\
+Tác giả & Tin Van Huynh, Kiet Van Nguyen, Ngan Luu-Thuy Nguyen (UIT-NLP) \\
+Loại dữ liệu & Văn bản tiếng Việt; cặp (tiền đề, giả thuyết) \\
+Số mẫu & 10.012 --- train 8.012 / validation 1.000 / test 1.000 \\
+Số lớp/nhãn & 3 lớp, đơn nhãn: \texttt{0=entailment}, \texttt{1=neutral},
+              \texttt{2=contradiction} \\
+Phiên bản (commit) & \texttt{0fec8d6ecb043a61c609f9b51f80401fdf1e84d3} \\
+Giấy phép & CC BY-NC-SA 4.0 \\
 Ngày truy cập & \todoText{dd/mm/yyyy} \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \section{Khám phá dữ liệu}
-\begin{instructionbox}
-Báo cáo phân bố lớp, kích thước đầu vào, độ dài chuỗi, dữ liệu thiếu, trùng lặp, nhiễu nhãn và ví dụ
-đại diện. Các biểu đồ phải có tiêu đề, nhãn trục, đơn vị và phần diễn giải.
-\end{instructionbox}
 
-\placeholderfigure{Phân bố số lượng mẫu theo lớp}
-\placeholderfigure{Một số mẫu dữ liệu đại diện}
+Toàn bộ số liệu trong mục này được sinh tự động bởi \texttt{01\_eda.ipynb} và lưu ở
+\texttt{outputs/logs/eda.json}.
 
-\section{Chia dữ liệu và phòng tránh rò rỉ}
+\subsection{Phân bố nhãn và mốc dưới}
+
 \begin{table}[H]
 \centering
-\caption{Cách chia dữ liệu sử dụng trong toàn bộ thực nghiệm}
+\caption{Phân bố nhãn theo từng tập}
 \begin{tabular}{lrrr}
 \toprule
-\textbf{Tập} & \textbf{Số mẫu} & \textbf{Tỷ lệ} & \textbf{Mục đích} \\
+\textbf{Nhãn} & \textbf{Train} & \textbf{Validation} & \textbf{Test} \\
 \midrule
-Train & \todoText{...} & \todoText{...\%} & Huấn luyện \\
-Validation & \todoText{...} & \todoText{...\%} & Chọn siêu tham số \\
-Test & \todoText{...} & \todoText{...\%} & Đánh giá cuối cùng \\
+entailment    & 32,64\% & 33,40\% & 33,40\% \\
+neutral       & 36,50\% & 33,30\% & 33,30\% \\
+contradiction & 30,87\% & 33,30\% & 33,30\% \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\todoText{Mô tả stratified split, patient-wise split, document-wise split hoặc quy tắc nhóm mẫu nếu có.}
+Tập validation và test được cân bằng gần như tuyệt đối, tập train lệch nhẹ về phía
+\textit{neutral}. Mức lệch này (dưới 6 điểm phần trăm) không đủ để cần đến class weighting,
+nên tham số \texttt{class\_weights} được giữ ở \texttt{None} trong mọi thí nghiệm. Mốc đoán
+nhãn đa số trên test là \textbf{0,334} --- đây là ngưỡng tuyệt đối mà mọi mô hình phải
+vượt qua mới được coi là học được điều gì đó.
 
-\section{Tiền xử lý và tăng cường dữ liệu}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.78\textwidth]{eda_label_dist.png}
+  \caption{Phân bố nhãn theo từng tập dữ liệu}
+\end{figure}
+
+\subsection{Độ dài chuỗi và lựa chọn \texttt{max\_length}}
+
+Phân vị 95 của độ dài tính theo từ là 51 từ với tiền đề và 28 từ với giả thuyết. Vì hai
+câu được nối vào cùng một chuỗi đầu vào ở các mô hình cross-encoder, tổng phân vị 95 vào
+khoảng 79 từ, tương ứng khoảng 120 subword. Do đó \texttt{max\_length} được chốt ở
+\textbf{128} cho cả bốn mô hình. Đây là quyết định dựa trên dữ liệu chứ không phải chọn
+theo thói quen, và được kiểm chứng lại bằng nhánh ablation \texttt{max\_len 64}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.78\textwidth]{eda_length_hist.png}
+  \caption{Phân bố độ dài của tiền đề và giả thuyết}
+\end{figure}
+
+\subsection{Dò tìm annotation artifact}
+
+Đây là phần quan trọng nhất của EDA, vì nó quyết định cách diễn giải toàn bộ kết quả về
+sau. Ba tín hiệu được kiểm tra:
+
+\begin{itemize}[leftmargin=*,itemsep=3pt]
+  \item \textbf{Từ phủ định trong giả thuyết.} Tỉ lệ theo nhãn: entailment 13,88\%,
+        neutral 12,07\%, contradiction 16,98\%. Chênh lệch tồn tại nhưng nhỏ --- xa mức
+        có thể khai thác thành quy tắc như ở SNLI.
+  \item \textbf{Độ trùng lặp từ vựng giữa hai câu} (hệ số Jaccard): entailment 0,184,
+        neutral 0,272, contradiction 0,275. Đáng chú ý là entailment lại có độ trùng
+        \textit{thấp nhất}, ngược với trực giác thông thường. Điều này cho thấy người gán
+        nhãn đã cố tình diễn đạt lại thay vì sao chép từ ngữ của tiền đề.
+  \item \textbf{Token đặc trưng theo nhãn} (đo bằng PMI). Danh sách thu được gồm những từ
+        rất chung như ``thập'', ``cái'', ``gần'' cho entailment hay ``đẹp'', ``chóng''
+        cho neutral --- không tạo thành mẫu hình ngữ nghĩa rõ ràng nào.
+\end{itemize}
+
+\subsection{Ba baseline phi-neural}
+
 \begin{table}[H]
 \centering
-\caption{Các bước tiền xử lý}
-\begin{tabularx}{\textwidth}{@{}L{3.4cm}Y L{3.2cm}@{}}
+\caption{Baseline TF-IDF + Hồi quy Logistic trên tập test}
+\begin{tabular}{lrr}
 \toprule
-\textbf{Bước} & \textbf{Mô tả} & \textbf{Tham số chính} \\
+\textbf{Baseline} & \textbf{Accuracy} & \textbf{Macro-F1} \\
 \midrule
-Làm sạch & \todoText{Mô tả} & \todoText{...} \\
-Chuẩn hóa & \todoText{Mô tả} & \todoText{...} \\
-Tokenization/Resize & \todoText{Mô tả} & \todoText{...} \\
-Augmentation & \todoText{Mô tả} & \todoText{...} \\
-Xử lý mất cân bằng & \todoText{Class weight/oversampling/...} & \todoText{...} \\
+Đoán nhãn đa số            & 0,334 & --- \\
+Chỉ dùng giả thuyết        & 0,318 & 0,310 \\
+Chỉ dùng tiền đề           & 0,039 & 0,036 \\
+Tiền đề + giả thuyết       & 0,105 & 0,100 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Hai kết quả ở bảng trên cần được giải thích cẩn thận vì chúng là bằng chứng mạnh nhất về
+tính đối kháng của ViANLI.
+
+\textbf{Thứ nhất}, baseline chỉ-giả-thuyết đạt 0,318 --- \textit{thấp hơn} mốc đoán nhãn
+đa số. Trên SNLI, baseline tương ứng đạt khoảng 67\%. Nghĩa là ViANLI không chứa bias
+hypothesis-only khai thác được: không thể đoán nhãn nếu không nhìn tiền đề.
+
+\textbf{Thứ hai}, baseline chỉ-tiền-đề đạt 0,039, tức là sai gần như mọi mẫu, thấp hơn rất
+nhiều so với mức ngẫu nhiên 0,333. Con số này thoạt nhìn giống lỗi cài đặt, nhưng kiểm tra
+trực tiếp trên dữ liệu cho thấy nó là hệ quả tất yếu của cách xây dựng bộ dữ liệu, được
+trình bày ở mục kế tiếp.
+
+\section{Chia dữ liệu và phòng tránh rò rỉ}
+
+\begin{table}[H]
+\centering
+\caption{Cách chia dữ liệu sử dụng trong toàn bộ thực nghiệm}
+\begin{tabular}{lrrl}
+\toprule
+\textbf{Tập} & \textbf{Số mẫu} & \textbf{Tỷ lệ} & \textbf{Mục đích} \\
+\midrule
+Train      & 8.012 & 80,0\% & Huấn luyện \\
+Validation & 1.000 & 10,0\% & Chọn checkpoint và siêu tham số \\
+Test       & 1.000 & 10,0\% & Đánh giá cuối cùng, dùng đúng một lần \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Đồ án sử dụng \textbf{nguyên phân chia gốc} của tác giả bộ dữ liệu, không tự chia lại. Ba
+tệp \texttt{data/splits/*.csv} được sinh một lần bởi \texttt{01\_eda.ipynb}, đưa vào quản
+lý phiên bản Git và được cả bốn notebook huấn luyện đọc chung. Đây là điều kiện kỹ thuật
+để bảo đảm nguyên tắc so sánh công bằng: không mô hình nào có thể vô tình thấy một phân
+chia khác.
+
+Ngoài ra, mọi tệp dự đoán \texttt{predictions/*.npy} đều được kiểm tra tự động rằng vector
+nhãn thật \texttt{y\_true} trùng khớp tuyệt đối giữa các notebook. Nếu thứ tự tập test lệch
+đi ở bất kỳ mô hình nào, quá trình sẽ dừng với thông báo lỗi thay vì âm thầm cho ra so
+sánh sai.
+
+\subsection{Kiểm tra rò rỉ dữ liệu}
+
+\begin{table}[H]
+\centering
+\caption{Kết quả kiểm tra trùng lặp và rò rỉ}
+\begin{tabularx}{\textwidth}{@{}Y C{3.0cm}@{}}
+\toprule
+\textbf{Phép kiểm tra} & \textbf{Kết quả} \\
+\midrule
+Cặp (tiền đề, giả thuyết) trùng giữa train và test & 2 \\
+Cặp trùng giữa train và validation                 & 0 \\
+Cặp trùng giữa validation và test                  & 0 \\
+Tiền đề (duy nhất) của test cũng xuất hiện trong train & 865 / 893 \\
+Số dòng test có tiền đề nằm trong train            & 956 / 1.000 \\
+Mẫu trùng lặp hoàn toàn trong test                 & 1 \\
+Cặp trùng nhưng khác nhãn                          & 0 \\
 \bottomrule
 \end{tabularx}
 \end{table}
+
+Hai dòng cuối bảng thoạt nhìn giống rò rỉ nghiêm trọng: 956/1.000 mẫu test có tiền đề đã
+xuất hiện trong tập train. Tuy nhiên phân tích sâu hơn cho thấy \textbf{đây là đặc điểm
+thiết kế, và phần trùng lặp mang tín hiệu ngược}:
+
+\begin{itemize}[leftmargin=*,itemsep=3pt]
+  \item Mỗi tiền đề trong tập train chỉ mang \textbf{một hoặc hai} nhãn khác nhau: 381
+        tiền đề có đúng 1 nhãn, 564 có 2 nhãn, chỉ 11 tiền đề có đủ cả 3.
+  \item Với \textbf{913 trên 956} trường hợp, nhãn của mẫu test \textit{không} nằm trong
+        tập nhãn mà cùng tiền đề đó mang ở tập train.
+  \item Chiến lược ``ghi nhớ tiền đề rồi đoán theo nhãn phổ biến nhất của nó trong train''
+        chỉ đúng 22/956, tức \textbf{0,023}.
+\end{itemize}
+
+Nói cách khác, mỗi tiền đề được ghép với cả ba nhãn, rồi các nhãn đó bị tách qua ranh giới
+train/test. Mô hình nào ghi nhớ ánh xạ tiền đề $\rightarrow$ nhãn sẽ sai một cách
+\textit{có hệ thống} chứ không phải sai ngẫu nhiên. Con số 0,023 này giải thích chính xác
+vì sao baseline chỉ-tiền-đề chỉ đạt 0,039: nó không phải mô hình kém, mà là bị dữ liệu
+đánh lừa theo đúng chủ đích của người thiết kế.
+
+Kết luận: bộ dữ liệu không có rò rỉ khai thác được. Cùng với baseline chỉ-giả-thuyết thấp
+hơn mốc đa số, hai phép đo này cho thấy ViANLI bịt cả hai đường tắt một-vế và buộc mô hình
+phải thực sự đối chiếu ngữ nghĩa giữa tiền đề và giả thuyết.
+
+\section{Tiền xử lý và tăng cường dữ liệu}
+
+\begin{table}[H]
+\centering
+\caption{Các bước tiền xử lý}
+\begin{tabularx}{\textwidth}{@{}L{3.0cm}Y L{3.6cm}@{}}
+\toprule
+\textbf{Bước} & \textbf{Mô tả} & \textbf{Tham số chính} \\
+\midrule
+Làm sạch & Điền chuỗi rỗng cho ô thiếu; không loại bỏ mẫu nào &
+  --- \\
+Chuẩn hóa & Chuẩn hóa Unicode NFC, gộp khoảng trắng liên tiếp. Áp dụng cho cả bốn mô hình &
+  \texttt{unicodedata.normalize("NFC")} \\
+Tách từ tiếng Việt & Nhánh CNN/RNN và PhoBERT: tách từ bằng \texttt{underthesea}.
+  XLM-R không dùng vì SentencePiece &
+  \texttt{word\_tokenize(format="text")} \\
+Tokenization & Nhánh CNN/RNN: word-level, vocab 9.503 token xây từ \textbf{riêng tập
+  train}. Nhánh Transformer: tokenizer đi kèm checkpoint &
+  \texttt{min\_freq = 2} \\
+Cắt/đệm chuỗi & Cắt cuối, đệm bằng token \texttt{<pad>} có \texttt{padding\_idx=0} &
+  \texttt{max\_length = 128} \\
+Tăng cường dữ liệu & Không sử dụng &
+  --- \\
+Xử lý mất cân bằng & Không cần: validation và test cân bằng, train lệch dưới 6 điểm &
+  \texttt{class\_weights = None} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Vì sao tách từ tiếng Việt là bước quyết định}
+
+Tiếng Việt viết rời từng âm tiết, nên ranh giới từ không trùng ranh giới khoảng trắng:
+``học\_sinh'', ``tổ\_chức'', ``Hà\_Nội'' đều là một từ nhưng gồm hai âm tiết. PhoBERT được
+tiền huấn luyện trên kho ngữ liệu \textbf{đã tách từ}, nên đưa văn bản thô vào là dùng sai
+mô hình --- các subword sẽ không khớp với những gì mô hình từng thấy.
+
+Bước này được cài đặt với cơ chế \textit{thất bại lớn tiếng}: hàm \texttt{word\_segment()}
+mặc định ném lỗi thay vì âm thầm trả về văn bản gốc khi thiếu thư viện, và hai notebook
+huấn luyện đều có khẳng định kiểm tra kết quả tách thử trước khi bắt đầu train. Thiết kế
+này xuất phát từ một sự cố thực tế trong quá trình làm đồ án: ở vòng thí nghiệm đầu tiên,
+thư viện \texttt{underthesea} không có sẵn trên môi trường Kaggle, cơ chế dự phòng im lặng
+đã khiến toàn bộ chín lần chạy huấn luyện trên văn bản chưa tách từ mà không có dấu hiệu
+nào. Sự cố chỉ bị phát hiện khi đối chiếu chéo và thấy nhánh ablation ``bỏ tách từ'' cho
+kết quả trùng khít với cấu hình gốc. Vòng thí nghiệm được chạy lại sau khi vá; mức chênh
+lệch 4,9 điểm báo cáo ở chương Kết quả là số đo của vòng chạy hợp lệ.
 
 \chapter{Phương pháp và kiến trúc mô hình}
 
 \section{Tổng quan quy trình}
-\begin{instructionbox}
-Vẽ pipeline từ dữ liệu thô đến dự đoán cuối cùng. Phân biệt rõ bước dùng chung và bước riêng của từng
-mô hình. Ghi kích thước tensor tại các điểm quan trọng.
-\end{instructionbox}
-\placeholderfigure{Sơ đồ tổng quan pipeline của hệ thống}
 
-\section{Mô hình 1: CNN-based}
-\begin{instructionbox}
-Mô tả kiến trúc, số lớp, kernel/filter, activation, pooling, normalization, dropout, loss và lý do lựa chọn.
-Với văn bản có thể dùng TextCNN/Conv1D; với chuỗi thời gian có thể dùng 1D-CNN; với ảnh có thể dùng
-CNN tự xây dựng hoặc transfer learning.
-\end{instructionbox}
-\todoText{Mô tả kiến trúc CNN và chèn sơ đồ.}
+Toàn bộ pipeline dùng chung một module dữ liệu (\texttt{src/data.py}) để bảo đảm bốn mô
+hình nhận cùng một phân chia và cùng quy tắc chuẩn hóa. Điểm rẽ nhánh duy nhất nằm ở bước
+tokenization:
+
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+  \item \textbf{Nhánh A (CNN, RNN).} Chuẩn hóa $\rightarrow$ tách từ $\rightarrow$
+        tokenizer word-level $\rightarrow$ tra vocab riêng $\rightarrow$ hai chuỗi id
+        \textbf{độc lập} cho tiền đề và giả thuyết. Hai câu được mã hóa riêng rồi mới ghép
+        biểu diễn ở tầng cuối.
+  \item \textbf{Nhánh B (Transformer).} Chuẩn hóa $\rightarrow$ tách từ (chỉ PhoBERT)
+        $\rightarrow$ tokenizer của checkpoint $\rightarrow$ \textbf{một chuỗi duy nhất}
+        dạng \texttt{<s> tiền\_đề </s></s> giả\_thuyết </s>}. Self-attention nhìn thấy cả
+        hai câu ngay từ tầng đầu tiên.
+\end{itemize}
+
+Khác biệt này --- ghép muộn ở nhánh A so với tương tác sớm ở nhánh B --- là biến số kiến
+trúc quan trọng nhất của đồ án và sẽ được thảo luận ở chương Phân tích.
+
+Hai mô hình nhánh A dùng chung công thức ghép biểu diễn theo dòng InferSent/ESIM:
+
+\begin{equation}
+  \mathbf{z} = [\,\mathbf{u}\,;\ \mathbf{v}\,;\ |\mathbf{u}-\mathbf{v}|\,;\
+  \mathbf{u}\odot\mathbf{v}\,],
+\end{equation}
+
+trong đó $\mathbf{u}, \mathbf{v}$ là biểu diễn của tiền đề và giả thuyết, $\odot$ là tích
+Hadamard. Hai thành phần $|\mathbf{u}-\mathbf{v}|$ và $\mathbf{u}\odot\mathbf{v}$ cung cấp
+tín hiệu tương phản và tương đồng mà phép nối đơn thuần không có.
+
+\section{Mô hình 1: CNN-based (TextCNN)}
+
+Mỗi câu được mã hóa độc lập bằng bốn nhánh tích chập một chiều với kích thước cửa sổ
+$k \in \{2,3,4,5\}$, mỗi nhánh 128 bộ lọc, theo sau là ReLU và max-pooling theo thời gian.
+Ghép bốn nhánh cho vector câu 512 chiều. Hai vector câu đi qua công thức ghép ở trên thành
+vector 2.048 chiều, rồi qua khối phân loại Linear(2048, 512) $\rightarrow$ BatchNorm
+$\rightarrow$ ReLU $\rightarrow$ Dropout $\rightarrow$ Linear(512, 3).
+
+Lý do chọn: TextCNN là đại diện kinh điển của họ CNN cho văn bản, và max-pooling theo thời
+gian giúp mô hình bắt các cụm n-gram mang tính quyết định mà không phụ thuộc vị trí.
 
 \begin{table}[H]
 \centering
-\caption{Cấu hình mô hình CNN-based}
+\caption{Cấu hình mô hình 1 --- TextCNN}
 \begin{tabularx}{\textwidth}{@{}L{4.5cm}Y@{}}
 \toprule
 \textbf{Thành phần} & \textbf{Giá trị} \\
 \midrule
-Kiến trúc & \todoText{Tên mô hình} \\
-Đầu vào & \todoText{Kích thước đầu vào} \\
-Số tham số & \todoText{...} \\
-Pretrained weights & \todoText{Có/Không; nguồn} \\
-Regularization & \todoText{Dropout, BatchNorm, weight decay} \\
-Loss & \todoText{...} \\
+Kiến trúc & TextCNN hai tháp chia sẻ trọng số + đầu phân loại MLP \\
+Đầu vào & Hai chuỗi id độc lập, mỗi chuỗi tối đa 128 token \\
+Embedding & 300 chiều, \textbf{khởi tạo ngẫu nhiên} (xem mục Hạn chế) \\
+Bộ lọc tích chập & 128 bộ lọc cho mỗi $k \in \{2,3,4,5\}$; vector câu 512 chiều \\
+Số tham số & 4.440.663 \\
+Pretrained weights & Không \\
+Regularization & Dropout 0,5; BatchNorm ở tầng ẩn; gradient clipping 5,0 \\
+Loss & Cross-entropy \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\section{Mô hình 2: RNN/LSTM/GRU-based}
-\begin{instructionbox}
-Mô tả biểu diễn chuỗi, embedding, chiều ẩn, số lớp, bidirectional hay unidirectional, cơ chế pooling/
-attention và cách xử lý độ dài khác nhau. Với ảnh hoặc dữ liệu không tuần tự, cần giải thích cách chuyển
-đổi sang chuỗi hoặc sử dụng kiến trúc hybrid CNN--RNN.
-\end{instructionbox}
-\todoText{Mô tả kiến trúc RNN/LSTM/GRU.}
+\section{Mô hình 2: RNN/LSTM/GRU-based (BiLSTM + attention)}
 
-\section{Mô hình 3: Transformer-based}
-\begin{instructionbox}
-Mô tả encoder/decoder, patch/token embedding, positional encoding, số head, số layer, kích thước hidden,
-pretrained checkpoint và chiến lược fine-tuning. Nếu dùng Hugging Face, ghi rõ model ID và phiên bản.
-\end{instructionbox}
-\todoText{Mô tả kiến trúc Transformer.}
+BiLSTM một tầng, 256 đơn vị ẩn mỗi chiều, chia sẻ trọng số giữa hai câu. Thay vì lấy trạng
+thái ẩn cuối cùng, mô hình dùng \textbf{attention pooling}: một tầng tuyến tính chấm điểm
+từng bước thời gian, softmax trên chiều thời gian cho trọng số, rồi lấy tổng có trọng số
+của các trạng thái ẩn. Cơ chế này cho phép mô hình tự chọn những từ quan trọng thay vì bị
+ép nén toàn bộ câu vào bước cuối.
 
-\section{Mô hình 4: Mô hình tham khảo bên ngoài}
-\begin{requirementbox}[Thông tin bắt buộc cho mô hình bên ngoài]
-\begin{itemize}[leftmargin=*]
-  \item Nguồn: bài báo/GitHub/Kaggle/model hub và URL đầy đủ.
-  \item Phiên bản, tag hoặc commit hash.
-  \item Giấy phép sử dụng.
-  \item Mức độ sử dụng: chạy nguyên bản, fine-tune hay tái hiện một phần.
-  \item Những thay đổi so với code gốc và lý do thay đổi.
-  \item Đảm bảo mô hình không được huấn luyện trước trên test set của đề tài.
-\end{itemize}
-\end{requirementbox}
+Cần lưu ý một chi tiết cài đặt có ảnh hưởng thực tế: với câu rỗng --- xuất hiện ở nhánh
+ablation chỉ-dùng-giả-thuyết --- toàn bộ điểm attention bị che. Nếu che bằng $-\infty$ thì
+softmax trả về NaN và làm hỏng toàn bộ gradient. Cài đặt dùng giá trị $-10^{4}$ và ép
+vector đầu ra về 0 cho câu rỗng.
+
+\begin{table}[H]
+\centering
+\caption{Cấu hình mô hình 2 --- BiLSTM + attention}
+\begin{tabularx}{\textwidth}{@{}L{4.5cm}Y@{}}
+\toprule
+\textbf{Thành phần} & \textbf{Giá trị} \\
+\midrule
+Kiến trúc & BiLSTM chia sẻ trọng số + attention pooling + đầu phân loại MLP \\
+Đầu vào & Hai chuỗi id độc lập, mỗi chuỗi tối đa 128 token \\
+Embedding & 300 chiều, khởi tạo ngẫu nhiên \\
+Tầng hồi quy & 1 tầng, 256 đơn vị ẩn, hai chiều $\rightarrow$ vector câu 512 chiều \\
+Pooling & Attention một đầu, có che vị trí đệm \\
+Số tham số & 5.045.848 \\
+Pretrained weights & Không \\
+Regularization & Dropout 0,5; BatchNorm; gradient clipping 5,0 \\
+Loss & Cross-entropy \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Mô hình 3: Transformer-based (PhoBERT)}
+
+Fine-tune \texttt{vinai/phobert-base-v2} \cite{phobert} dạng \textbf{cross-encoder}: hai
+câu được nối thành một chuỗi duy nhất và đưa qua cùng một ngăn xếp Transformer, nên
+self-attention có thể đối chiếu trực tiếp từng token của giả thuyết với từng token của
+tiền đề. Đầu phân loại là một tầng tuyến tính trên biểu diễn của token \texttt{<s>}, khởi
+tạo ngẫu nhiên và huấn luyện cùng toàn bộ mô hình.
+
+PhoBERT là mô hình RoBERTa đơn ngữ tiếng Việt, tiền huấn luyện trên kho ngữ liệu tiếng
+Việt cỡ lớn đã tách từ. Đây là lý do bước tách từ ở chương trước là bắt buộc chứ không phải
+tùy chọn.
+
+\begin{table}[H]
+\centering
+\caption{Cấu hình mô hình 3 --- PhoBERT}
+\begin{tabularx}{\textwidth}{@{}L{4.5cm}Y@{}}
+\toprule
+\textbf{Thành phần} & \textbf{Giá trị} \\
+\midrule
+Checkpoint & \texttt{vinai/phobert-base-v2} \\
+Revision (commit) & \texttt{86cd7fd4c148980922ac11a2cf5e257f2ba639e1} \\
+Giấy phép & AGPL-3.0 \\
+Kiến trúc & RoBERTa base: 12 tầng, 12 head, hidden 768 \\
+Định dạng đầu vào & \texttt{<s> tiền\_đề </s></s> giả\_thuyết </s>}, tối đa 128 subword \\
+Tokenizer & BPE đi kèm checkpoint; \textbf{bắt buộc} tách từ trước \\
+Số tham số & 135.000.579 \\
+Chiến lược fine-tune & Cập nhật toàn bộ tham số; đầu phân loại 3 lớp khởi tạo ngẫu nhiên \\
+Regularization & Weight decay 0,01; early stopping theo macro-F1 dev \\
+Loss & Cross-entropy \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Mô hình 4: Mô hình tham khảo bên ngoài (XLM-RoBERTa large)}
+
+Đồ án sử dụng hai checkpoint công khai thuộc dòng XLM-RoBERTa \cite{xlmr}. Checkpoint thứ
+nhất đóng vai trò mô hình 4 chính thức; checkpoint thứ hai phục vụ hai nhánh ablation về
+transfer learning.
 
 \begin{table}[H]
 \centering
 \caption{Thông tin nguồn của mô hình bên ngoài}
-\begin{tabularx}{\textwidth}{@{}L{4.2cm}Y@{}}
+\begin{tabularx}{\textwidth}{@{}L{3.6cm}Y@{}}
 \toprule
-Tên mô hình & \todoText{...} \\
-Nguồn công bố & \todoText{Paper/GitHub/Kaggle/...} \\
-URL & \todoText{...} \\
-Phiên bản/commit & \todoText{...} \\
-Giấy phép & \todoText{...} \\
-Điều chỉnh của nhóm & \todoText{...} \\
+\multicolumn{2}{@{}l}{\textbf{Checkpoint 1 --- mô hình 4 chính thức}} \\
+\midrule
+Tên mô hình & XLM-RoBERTa large \\
+Nguồn công bố & Conneau et al., \textit{Unsupervised Cross-lingual Representation
+                Learning at Scale}, arXiv:1911.02116, 2019 \\
+URL & \url{https://huggingface.co/FacebookAI/xlm-roberta-large} \\
+Phiên bản/commit & \texttt{c23d21b0620b635a76227c604d44e43a9f0ee389} \\
+Giấy phép & MIT \\
+Mức độ sử dụng & Fine-tune toàn bộ trên tập train của ViANLI \\
+Điều chỉnh & Thay đầu ra bằng tầng phân loại 3 lớp khởi tạo ngẫu nhiên; bật fp16 và
+              gradient checkpointing để vừa VRAM 16\,GB. Không sửa kiến trúc hay mã nguồn
+              gốc \\
+\midrule
+\multicolumn{2}{@{}l}{\textbf{Checkpoint 2 --- dùng cho hai nhánh ablation}} \\
+\midrule
+Tên mô hình & XLM-RoBERTa large XNLI (joeddav) \\
+Nguồn công bố & Fine-tune cộng đồng trên Hugging Face Hub, dựa trên XLM-R large \\
+URL & \url{https://huggingface.co/joeddav/xlm-roberta-large-xnli} \\
+Phiên bản/commit & \texttt{b227ee8435ceadfa86dc1368a34254e2838bf242} \\
+Giấy phép & MIT \\
+Mức độ sử dụng & (a) Chạy nguyên bản ở chế độ zero-shot; (b) fine-tune tiếp trên ViANLI \\
+Điều chỉnh & \textbf{Ánh xạ lại thứ tự nhãn} từ quy ước của checkpoint XNLI sang quy ước
+              của ViANLI. Bỏ bước này thì kết quả zero-shot sai hoàn toàn \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\section{Hàm mất mát và chiến lược tối ưu}
-\todoText{Trình bày công thức loss, optimizer, scheduler, early stopping và tiêu chí lưu checkpoint.}
+\subsection{Khẳng định mô hình không được huấn luyện trên tập test của đề tài}
 
-Ví dụ với phân loại đa lớp, cross-entropy được định nghĩa:
+\texttt{xlm-roberta-large} là mô hình ngôn ngữ tiền huấn luyện \textit{tự giám sát} trên
+dữ liệu CommonCrawl của 100 ngôn ngữ. Quá trình này không sử dụng bất kỳ nhãn NLI nào, nên
+về nguyên tắc không thể đã thấy nhãn của tập test ViANLI.
+
+\texttt{joeddav/xlm-roberta-large-xnli} được fine-tune trên tập MNLI tiếng Anh ghép với
+phần validation và test của XNLI trên 15 ngôn ngữ, trong đó có tiếng Việt. Tuy nhiên XNLI
+là bản dịch thủ công của MultiNLI, với nguồn văn bản gốc là tiếng Anh thuộc các thể loại
+hư cấu, văn bản hành chính và hội thoại điện thoại. ViANLI là bộ dữ liệu độc lập, tiền đề
+lấy từ báo chí tiếng Việt và giả thuyết do người viết theo quy trình đối kháng. Hai bộ
+không chung nguồn văn bản, nên tập test của ViANLI không nằm trong dữ liệu huấn luyện của
+checkpoint.
+
+Bằng chứng thực nghiệm ủng hộ khẳng định này: accuracy zero-shot của checkpoint XNLI trên
+test ViANLI chỉ đạt \textbf{0,334}, đúng bằng mức đoán nhãn đa số. Nếu checkpoint từng
+thấy dữ liệu này, con số phải cao hơn hẳn.
+
+\section{Hàm mất mát và chiến lược tối ưu}
+
+Cả bốn mô hình dùng chung hàm mất mát cross-entropy cho phân loại đa lớp:
+
 \begin{equation}
   \mathcal{L}_{\mathrm{CE}}=-\frac{1}{N}\sum_{i=1}^{N}\sum_{k=1}^{K}
-  y_{ik}\log \hat{p}_{ik}.
+  y_{ik}\log \hat{p}_{ik},
 \end{equation}
+
+với $N$ là kích thước batch, $K = 3$, $y_{ik}$ là nhãn one-hot và $\hat{p}_{ik}$ là xác
+suất dự đoán. Không dùng trọng số lớp vì dữ liệu gần cân bằng.
+
+Chiến lược tối ưu và tiêu chí lưu checkpoint được thống nhất giữa bốn mô hình để bảo đảm
+so sánh công bằng: đánh giá trên tập validation sau mỗi epoch, chọn checkpoint có
+\textbf{macro-F1 trên validation} cao nhất, dừng sớm khi metric này không cải thiện sau
+một số epoch cho trước. Chi tiết siêu tham số ở chương kế tiếp.
 
 \chapter{Thiết kế thực nghiệm}
 
 \section{Môi trường thực nghiệm}
+
 \begin{table}[H]
 \centering
 \caption{Môi trường phần cứng và phần mềm}
@@ -522,185 +869,687 @@ Ví dụ với phân loại đa lớp, cross-entropy được định nghĩa:
 \toprule
 Hạng mục & Thông tin \\
 \midrule
-Nền tảng & \todoText{Google Colab/Kaggle/Local/Cloud} \\
-CPU/GPU & \todoText{...} \\
-RAM/VRAM & \todoText{...} \\
-Python & \todoText{Phiên bản} \\
-Framework & \todoText{TensorFlow/Keras; PyTorch nếu có} \\
-Thư viện chính & \todoText{Transformers, OpenCV, scikit-learn, ...} \\
-Random seed & \todoText{...} \\
+Nền tảng huấn luyện & Kaggle Notebooks, chế độ Save \& Run All (chạy nền) \\
+GPU & \todoText{Ghi rõ T4 x2 hay P100 --- chạy cell in môi trường ở mục 9 của KAGGLE.md} \\
+VRAM đỉnh đo được & PhoBERT 3,98\,GB; XLM-R large 13,47\,GB \\
+Nền tảng phân tích & Máy cục bộ, CPU (notebook 05 không cần GPU) \\
+Python & \todoText{Phiên bản trên Kaggle} \\
+Framework & PyTorch + Hugging Face Transformers \\
+Thư viện chính & \texttt{transformers}, \texttt{datasets}, \texttt{underthesea},
+                 \texttt{scikit-learn}, \texttt{pandas}, \texttt{matplotlib} \\
+Random seed & 42, đặt lại trước \textbf{mỗi} thí nghiệm \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
+\begin{notebox}[Về khả năng so sánh của số đo thời gian]
+Bốn mô hình được huấn luyện ở các phiên Kaggle khác nhau, và Kaggle có thể cấp loại GPU
+khác nhau giữa các phiên. Vì vậy các con số thời gian huấn luyện và suy luận nên được đọc
+như \textit{bậc độ lớn} để so sánh tương đối, không phải phép đo chuẩn hóa trên cùng một
+thiết bị tại cùng một thời điểm.
+\end{notebox}
+
 \section{Cấu hình huấn luyện}
+
 \begin{table}[H]
 \centering
 \small
-\caption{Siêu tham số huấn luyện của các mô hình}
+\caption{Siêu tham số huấn luyện của bốn mô hình}
 \begin{tabularx}{\textwidth}{@{}L{2.9cm}YYYY@{}}
 \toprule
-\textbf{Siêu tham số} & \textbf{CNN} & \textbf{RNN/LSTM} & \textbf{Transformer} & \textbf{External} \\
+\textbf{Siêu tham số} & \textbf{TextCNN} & \textbf{BiLSTM} & \textbf{PhoBERT} &
+\textbf{XLM-R large} \\
 \midrule
-Batch size & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} \\
-Epochs & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} \\
-Learning rate & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} \\
-Optimizer & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} \\
-Scheduler & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} \\
-Early stopping & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} \\
+Batch size      & 64 & 64 & 32 & 8 ($\times$4 accum $=$ 32) \\
+Epoch tối đa    & 30 & 30 & 8 & 5 \\
+Epoch đã chạy   & 9 & 6 & 8 & 5 \\
+Learning rate   & 1e-3 & 1e-3 & 2e-5 & 5e-6 \\
+Optimizer       & Adam & Adam & AdamW & AdamW \\
+Scheduler       & Không & Không & Warmup 6\% + giảm tuyến tính &
+                  Warmup 10\% + giảm tuyến tính \\
+Weight decay    & 0 & 0 & 0,01 & 0,01 \\
+Dropout         & 0,5 & 0,5 & Mặc định của checkpoint & Mặc định của checkpoint \\
+Gradient clip   & 5,0 & 5,0 & Mặc định & Mặc định \\
+Độ chính xác    & fp32 & fp32 & fp16 & fp16 + gradient checkpointing \\
+Early stopping  & Patience 5 & Patience 5 & Patience 3 & Patience 2 \\
 \bottomrule
 \end{tabularx}
 \end{table}
+
+Hai lựa chọn siêu tham số cần giải thích vì chúng không phải giá trị mặc định:
+
+\textbf{Learning rate của XLM-R large.} Cấu hình đầu tiên (lr 1e-5, warmup 6\%) khiến mô
+hình \textit{sụp} ngay sau epoch 1: macro-F1 validation rơi xuống 0,166 --- tương đương
+việc chỉ đoán một nhãn duy nhất --- kèm chuẩn gradient tăng vọt lên 179. Hiện tượng
+collapse này được ghi nhận rộng rãi với các mô hình cỡ large. Hạ learning rate xuống 5e-6
+và kéo dài warmup lên 10\% giải quyết được vấn đề. Đây là ví dụ cụ thể cho việc mô hình
+lớn hơn không tự động dễ huấn luyện hơn.
+
+\textbf{Kích thước batch của XLM-R large.} Batch 8 kết hợp tích lũy gradient 4 bước cho
+batch hiệu dụng 32, khớp với PhoBERT để giữ điều kiện so sánh, đồng thời vừa với giới hạn
+VRAM 16\,GB.
 
 \section{Metric đánh giá}
-\begin{instructionbox}
-Chọn metric theo loại bài toán và nêu rõ metric chính dùng để xếp hạng mô hình. Không chỉ báo cáo
-accuracy khi dữ liệu mất cân bằng. Với metric có nhiều biến thể, ghi rõ macro/micro/weighted hoặc ngưỡng.
-\end{instructionbox}
 
-\begin{table}[H]
-\centering
-\caption{Gợi ý metric theo loại tác vụ}
-\begin{tabularx}{\textwidth}{@{}L{4.2cm}Y@{}}
-\toprule
-\textbf{Loại tác vụ} & \textbf{Metric gợi ý} \\
-\midrule
-Phân loại đơn nhãn & Accuracy, Macro-F1, Weighted-F1, Precision, Recall \\
-Phân loại đa nhãn & Micro-F1, Macro-F1, mAP, Hamming loss \\
-Object detection & mAP@0.5, mAP@0.5:0.95, Precision, Recall, FPS \\
-Question answering & Exact Match, token-level F1 \\
-Image captioning & BLEU, METEOR, ROUGE-L, CIDEr \\
-VQA/Multimodal & Accuracy hoặc metric theo benchmark; phân tích theo loại câu hỏi \\
-ECG/y sinh & Macro-F1, AUROC/AUPRC theo lớp; sensitivity, specificity khi phù hợp \\
-\bottomrule
-\end{tabularx}
-\end{table}
+Bài toán là phân loại đơn nhãn ba lớp trên tập test cân bằng, nên \textbf{accuracy} được
+chọn làm metric chính --- đây cũng là metric chuẩn mà các công trình về NLI báo cáo, giúp
+kết quả của đồ án so sánh được với tài liệu.
+
+Tuy nhiên accuracy một mình là không đủ. Đồ án bắt buộc báo cáo kèm \textbf{macro-F1}, và
+lý do được chứng minh bằng chính số liệu thu được: mô hình XLM-R large đạt accuracy cao
+thứ nhì nhưng gần như từ chối dự đoán lớp \textit{contradiction}, khiến macro-F1 của nó
+tụt xuống thấp hơn cả những mô hình có accuracy kém hơn. Nếu chỉ nhìn accuracy, đồ án sẽ
+đưa ra kết luận sai về chất lượng mô hình.
+
+Các metric phụ khác gồm precision/recall theo từng lớp, confusion matrix, và
+\textbf{kiểm định McNemar} giữa hai mô hình tốt nhất để xác định chênh lệch có ý nghĩa
+thống kê hay không --- điều đặc biệt cần thiết khi tập test chỉ có 1.000 mẫu, tương ứng
+sai số khoảng $\pm 1{,}5$ điểm phần trăm.
 
 \section{Kế hoạch thí nghiệm và ablation}
-\begin{enumerate}[leftmargin=*]
-  \item So sánh bốn mô hình trên cùng test set.
 
-  \item Phân tích ít nhất một yếu tố: augmentation, dropout, learning rate, class weighting, tokenizer, có/không có pre-trained weights hoặc backbone model
-  kích thước đầu vào, số layer hoặc chiến lược fine-tuning.
-  \item Đo thời gian huấn luyện, suy luận, số tham số hoặc tài nguyên nếu có thể.
+\begin{enumerate}[leftmargin=*,itemsep=3pt]
+  \item So sánh bốn mô hình trên cùng tập test, cùng seed, cùng tiêu chí chọn checkpoint.
+  \item Tám nhánh ablation trên bốn nhóm yếu tố: tiền xử lý (tách từ), thông tin đầu vào
+        (chỉ dùng giả thuyết, độ dài tối đa), siêu tham số (learning rate, dropout) và
+        chiến lược transfer (zero-shot, khởi tạo từ checkpoint XNLI).
+  \item Đo số tham số, thời gian huấn luyện, thời gian suy luận và VRAM đỉnh cho phần thảo
+        luận về chi phí tính toán.
 \end{enumerate}
+
+Tổng cộng 12 lần chạy huấn luyện. Mỗi lần chạy ghi ra tệp tóm tắt, lịch sử theo epoch,
+báo cáo trên test và vector dự đoán. Trước khi đưa vào báo cáo, cả 12 lần chạy đều được
+kiểm tra chéo tự động: accuracy trong tệp tóm tắt phải khớp với accuracy tính lại từ vector
+dự đoán và với báo cáo test. Cả 12/12 đều khớp.
 
 \chapter{Kết quả thực nghiệm}
 
 \section{Kết quả định lượng chính}
+
 \begin{table}[H]
 \centering
-\caption{So sánh kết quả chính trên tập test}
-\begin{tabularx}{\textwidth}{@{}L{3.6cm}C{2.1cm}C{2.1cm}C{2.1cm}C{2.1cm}Y@{}}
+\small
+\caption{So sánh kết quả chính của bốn mô hình trên tập test}
+\begin{tabularx}{\textwidth}{@{}L{3.5cm}C{1.7cm}C{1.7cm}C{1.6cm}C{1.7cm}C{1.9cm}@{}}
 \toprule
-\textbf{Mô hình} & \textbf{Metric 1} & \textbf{Metric 2} & \textbf{Params} & \textbf{Time} & \textbf{Ghi chú} \\
+\textbf{Mô hình} & \textbf{Accuracy} & \textbf{Macro-F1} & \textbf{Params} &
+\textbf{Train} & \textbf{Suy luận} \\
 \midrule
-CNN-based & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} \\
-RNN/LSTM-based & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} \\
-Transformer-based & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} \\
-External model & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} & \todoText{...} \\
+Đoán nhãn đa số        & 0,334 & ---            & ---     & ---   & --- \\
+\midrule
+1. TextCNN             & 0,334 & 0,327          & 4,4M    & 1,9 phút  & --- \\
+2. BiLSTM + attn       & 0,379 & 0,366          & 5,0M    & 1,3 phút  & --- \\
+3. PhoBERT             & \textbf{0,470} & \textbf{0,466} & 135,0M & 10,9 phút &
+                         \textbf{3,02} ms \\
+4. XLM-R large         & \underline{0,449} & 0,372 & 559,9M & 46,8 phút & 16,23 ms \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \begin{notebox}
-Bôi đậm kết quả tốt nhất và gạch chân kết quả tốt thứ hai chỉ khi các mô hình được đánh giá cùng một
-điều kiện. Nếu chạy nhiều seed, báo cáo trung bình $\pm$ độ lệch chuẩn.
+Ô ``suy luận'' của hai mô hình đầu để trống vì phép đo thời gian suy luận chưa được cài
+đặt ở vòng chạy của hai mô hình này. Đây là thiếu sót đã được ghi nhận, không phải kết quả
+không đo được.
+\end{notebox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{main_comparison.png}
+  \caption{Accuracy của bốn mô hình so với các mốc baseline}
+\end{figure}
+
+Ba quan sát trực tiếp từ bảng:
+
+\textbf{TextCNN không học được gì vượt mốc đoán nhãn đa số.} Accuracy 0,334 trùng khít với
+mốc 0,334. Macro-F1 0,327 cho thấy mô hình có phân biệt các lớp ở mức nào đó chứ không
+sụp về một nhãn, nhưng mức phân biệt đó không chuyển thành lợi thế về accuracy.
+
+\textbf{PhoBERT dẫn đầu cả hai metric} với 0,470 và 0,466, cao hơn mốc đa số 13,6 điểm.
+
+\textbf{XLM-R large đứng nhì về accuracy nhưng chỉ thứ ba về macro-F1}, thấp hơn cả BiLSTM
+về khoảng cách giữa hai metric. Nguyên nhân được làm rõ ở mục kết quả theo lớp.
+
+\subsection{Kiểm định ý nghĩa thống kê}
+
+Chênh lệch accuracy giữa PhoBERT (0,470) và XLM-R large (0,449) là 2,1 điểm. Với tập test
+1.000 mẫu, cần kiểm định trước khi kết luận. Kiểm định McNemar trên các mẫu mà hai mô hình
+bất đồng cho kết quả: chỉ PhoBERT đúng ở 213 mẫu, chỉ XLM-R đúng ở 192 mẫu,
+$p = 0{,}32$.
+
+\begin{notebox}[Kết luận cần thận trọng]
+Với $p = 0{,}32 > 0{,}05$, \textbf{chưa đủ bằng chứng} để khẳng định PhoBERT có accuracy
+cao hơn XLM-R large. Hai mô hình nên được coi là tương đương về accuracy trên bộ dữ liệu
+này. Khác biệt thực sự giữa chúng nằm ở macro-F1 và ở chi phí tính toán, không nằm ở
+accuracy.
 \end{notebox}
 
 \section{Đường cong huấn luyện}
-\placeholderfigure{Training/validation loss và metric qua các epoch}
 
-\section{Kết quả theo lớp hoặc nhóm dữ liệu}
-\placeholderfigure{Confusion matrix hoặc kết quả theo từng lớp}
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{cnn_vs_rnn_dev.png}
+    \caption{TextCNN và BiLSTM trên validation}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{phobert_base_v2_curve.png}
+    \caption{PhoBERT}
+  \end{subfigure}
+  \caption{Đường cong huấn luyện: macro-F1 trên tập validation qua các epoch}
+\end{figure}
 
-\section{Kết quả ablation}
+Đường cong của hai mô hình từ đầu cho thấy một mẫu hình rất rõ: macro-F1 trên validation
+đạt đỉnh ngay ở epoch 1--2 rồi đi ngang hoặc giảm, trong khi loss huấn luyện tiếp tục giảm
+sâu về gần 0. Cụ thể với BiLSTM, loss huấn luyện giảm từ 1,14 xuống 0,013 sau 6 epoch
+trong khi accuracy validation dao động quanh 0,35.
+
+Đây là hiện tượng \textbf{ghi nhớ chứ không tổng quát hóa}. Mô hình đủ dung lượng để thuộc
+lòng 8.012 mẫu huấn luyện nhưng không rút ra được quy luật suy luận nào áp dụng được cho
+dữ liệu mới. Cơ chế dừng sớm đã hoạt động đúng: cả hai mô hình dừng ở epoch 6--9 thay vì
+chạy hết 30 epoch, và checkpoint được chọn là checkpoint của epoch tốt nhất trên
+validation chứ không phải epoch cuối.
+
+\section{Kết quả theo lớp}
+
 \begin{table}[H]
 \centering
-\caption{Kết quả phân tích ablation}
-\begin{tabularx}{\textwidth}{@{}Y C{2.5cm}C{2.5cm}Y@{}}
+\small
+\caption{F1 theo từng lớp trên tập test}
+\begin{tabularx}{\textwidth}{@{}L{3.5cm}C{2.6cm}C{2.6cm}C{2.8cm}@{}}
 \toprule
-\textbf{Cấu hình} & \textbf{Metric chính} & \textbf{Chênh lệch} & \textbf{Nhận xét} \\
+\textbf{Mô hình} & \textbf{entailment} & \textbf{neutral} & \textbf{contradiction} \\
 \midrule
-Cấu hình đầy đủ & \todoText{...} & -- & \todoText{...} \\
-Bỏ/thay đổi thành phần 1 & \todoText{...} & \todoText{...} & \todoText{...} \\
-Bỏ/thay đổi thành phần 2 & \todoText{...} & \todoText{...} & \todoText{...} \\
+1. TextCNN       & 0,393 & 0,260 & 0,329 \\
+2. BiLSTM + attn & 0,447 & 0,386 & 0,264 \\
+3. PhoBERT       & 0,552 & 0,397 & \textbf{0,449} \\
+4. XLM-R large   & \textbf{0,583} & \textbf{0,494} & 0,040 \\
 \bottomrule
 \end{tabularx}
 \end{table}
+
+Bảng này là kết quả quan trọng nhất của toàn bộ đồ án.
+
+XLM-R large đạt F1 cao nhất ở hai lớp \textit{entailment} và \textit{neutral}, nhưng F1 ở
+lớp \textit{contradiction} chỉ \textbf{0,040}. Xem xét chi tiết: recall của lớp này là
+0,021, nghĩa là trong 333 mẫu contradiction của tập test, mô hình chỉ nhận ra 7 mẫu. Trên
+thực tế nó đã gần như loại bỏ lớp thứ ba khỏi không gian dự đoán --- phân bố dự đoán của
+mô hình là 465 entailment, 514 neutral và chỉ 21 contradiction.
+
+Đây chính là lý do accuracy một mình gây hiểu nhầm. Vì tập test cân bằng, một mô hình đoán
+tốt hai lớp và bỏ hẳn lớp thứ ba vẫn có thể đạt accuracy khá, trong khi nó \textbf{không
+sử dụng được cho ứng dụng thực tế} --- phát hiện mâu thuẫn thường là chính điều người dùng
+cần ở một hệ thống NLI.
+
+PhoBERT ngược lại có phân bố dự đoán cân đối (390 / 292 / 318) và là mô hình duy nhất đạt
+F1 trên 0,44 ở lớp contradiction.
+
+\begin{table}[H]
+\centering
+\caption{Confusion matrix của PhoBERT trên tập test (hàng: nhãn thật, cột: dự đoán)}
+\begin{tabular}{lrrr}
+\toprule
+ & \textbf{entailment} & \textbf{neutral} & \textbf{contradiction} \\
+\midrule
+entailment    & \textbf{200} & 79  & 55  \\
+neutral       & 92  & \textbf{124} & 117 \\
+contradiction & 98  & 89  & \textbf{146} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Với PhoBERT, lớp khó nhất là \textit{neutral} (recall 0,372). Kiểu nhầm phổ biến nhất là
+neutral bị đoán thành contradiction (117 mẫu) và contradiction bị đoán thành entailment
+(98 mẫu). Điều này phù hợp với trực giác ngôn ngữ học: ranh giới giữa ``không suy ra
+được'' và ``mâu thuẫn'' đòi hỏi suy luận tinh tế hơn hẳn so với ranh giới giữa ``suy ra
+được'' và phần còn lại.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{phobert_base_v2_cm.png}
+    \caption{PhoBERT}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{xlmr_large_finetuned_cm.png}
+    \caption{XLM-R large}
+  \end{subfigure}
+  \caption{Confusion matrix của hai mô hình tốt nhất}
+\end{figure}
+
+\section{Kết quả theo nhóm dữ liệu}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Accuracy theo nhóm mẫu trên tập test}
+\begin{tabularx}{\textwidth}{@{}L{4.2cm}C{2.0cm}C{2.0cm}C{2.0cm}C{2.0cm}@{}}
+\toprule
+\textbf{Nhóm} & \textbf{TextCNN} & \textbf{BiLSTM} & \textbf{PhoBERT} &
+\textbf{XLM-R} \\
+\midrule
+Trùng lặp từ vựng thấp  & 0,383 & 0,445 & \textbf{0,499} & 0,502 \\
+Trùng lặp từ vựng vừa   & 0,335 & 0,302 & 0,480 & 0,396 \\
+Trùng lặp từ vựng cao   & 0,283 & 0,389 & 0,431 & 0,449 \\
+\midrule
+Giả thuyết có phủ định  & 0,261 & 0,367 & 0,466 & 0,429 \\
+Giả thuyết không phủ định & 0,348 & 0,381 & 0,471 & 0,453 \\
+\midrule
+Giả thuyết có chứa số   & 0,326 & 0,395 & 0,462 & 0,443 \\
+Câu ngắn                & 0,332 & 0,358 & 0,486 & 0,477 \\
+Câu dài                 & 0,346 & 0,376 & 0,480 & 0,413 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Mẫu hình nhất quán nhất: \textbf{mọi mô hình đều kém nhất ở nhóm có độ trùng lặp từ vựng
+cao} giữa tiền đề và giả thuyết. Với PhoBERT, accuracy giảm từ 0,499 ở nhóm trùng lặp thấp
+xuống 0,431 ở nhóm trùng lặp cao.
+
+Đây là dấu hiệu đặc trưng của dữ liệu đối kháng. Khi hai câu dùng gần như cùng bộ từ vựng
+nhưng khác nhau về nghĩa --- do đảo vai trò, thay đổi con số, thêm một từ phủ định --- mô
+hình không thể dựa vào tín hiệu bề mặt và buộc phải suy luận thật. Tập dữ liệu tiêu chuẩn
+thường cho mẫu hình \textit{ngược lại}: trùng lặp cao thường tương quan với entailment và
+là đường tắt dễ khai thác.
+
+Tập test có 16,1\% giả thuyết chứa từ phủ định và 37,7\% chứa chữ số. Ảnh hưởng của phủ
+định lên PhoBERT nhỏ (0,466 so với 0,471), nhưng lên TextCNN thì rõ rệt (0,261 so với
+0,348) --- mô hình không có cơ chế đối chiếu hai câu bị đánh lừa nặng nhất bởi phủ định.
+
+\section{Kết quả ablation}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Kết quả tám nhánh ablation, xếp theo mức ảnh hưởng tới accuracy}
+\begin{tabularx}{\textwidth}{@{}L{4.3cm}L{2.6cm}C{1.5cm}C{1.5cm}C{1.9cm}@{}}
+\toprule
+\textbf{Thay đổi} & \textbf{Mô hình gốc} & \textbf{Acc} &
+\textbf{$\Delta$ Acc} & \textbf{$\Delta$ Macro-F1} \\
+\midrule
+Zero-shot XNLI (không fine-tune) & XLM-R large & 0,334 & $-0{,}115$ & $-0{,}048$ \\
+Chỉ dùng giả thuyết              & PhoBERT     & 0,416 & $-0{,}054$ & $-0{,}057$ \\
+\textbf{Bỏ tách từ tiếng Việt}   & PhoBERT     & 0,421 & $\mathbf{-0{,}049}$ &
+                                   $-0{,}045$ \\
+Chỉ dùng giả thuyết              & BiLSTM      & 0,351 & $-0{,}028$ & $-0{,}025$ \\
+Khởi tạo từ checkpoint XNLI      & XLM-R large & 0,423 & $-0{,}026$ &
+                                   $\mathbf{+0{,}047}$ \\
+Learning rate 2e-5 $\rightarrow$ 5e-5 & PhoBERT & 0,450 & $-0{,}020$ & $-0{,}018$ \\
+\texttt{max\_len} 128 $\rightarrow$ 64 & BiLSTM & 0,380 & $+0{,}001$ & $-0{,}004$ \\
+Dropout 0,5 $\rightarrow$ 0,2    & BiLSTM      & 0,403 & $\mathbf{+0{,}024}$ &
+                                   $+0{,}030$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{ablation.png}
+  \caption{Ảnh hưởng của từng yếu tố tới accuracy}
+\end{figure}
+
+\subsection{Fine-tune là yếu tố quan trọng nhất}
+
+Zero-shot từ checkpoint XNLI chỉ đạt 0,334 --- đúng mức ngẫu nhiên. Mô hình đã học NLI
+trên 15 ngôn ngữ, bao gồm tiếng Việt, vẫn hoàn toàn bất lực trước ViANLI khi không được
+fine-tune. Điều này vừa xác nhận tính đối kháng của bộ dữ liệu, vừa cho thấy năng lực NLI
+học được từ dữ liệu dịch máy không chuyển giao sang dữ liệu đối kháng viết trực tiếp bằng
+tiếng Việt.
+
+\subsection{Tách từ tiếng Việt đáng giá 4,9 điểm}
+
+Bỏ bước tách từ khiến PhoBERT giảm từ 0,470 xuống 0,421. Đây là mức chênh lệch lớn với một
+bước tiền xử lý duy nhất, và khẳng định điều đã nêu ở chương Bộ dữ liệu: PhoBERT được tiền
+huấn luyện trên văn bản đã tách từ, đưa văn bản thô vào là dùng sai mô hình chứ không phải
+một biến thể cấu hình.
+
+Đáng chú ý, mô hình không tách từ (0,421) vẫn vượt xa BiLSTM (0,379), cho thấy lợi thế của
+pretraining và cross-attention lớn hơn nhiều so với lợi thế của tiền xử lý đúng cách.
+
+\subsection{Đánh đổi giữa accuracy và macro-F1 khi transfer từ XNLI}
+
+Khởi tạo từ checkpoint đã học XNLI thay vì từ XLM-R gốc làm accuracy \textit{giảm} 2,6
+điểm nhưng macro-F1 \textit{tăng} 4,7 điểm --- nhánh duy nhất trong bảng có hai chỉ số
+ngược chiều nhau. Nguyên nhân: mô hình khởi tạo từ XNLI giữ được phân bố dự đoán cân đối
+(346 / 399 / 255) thay vì sụp về hai lớp như mô hình khởi tạo từ XLM-R gốc (465 / 514 /
+21).
+
+Kiến thức NLI có sẵn từ XNLI không giúp mô hình đoán đúng nhiều hơn, nhưng giúp nó
+\textbf{không đánh mất khái niệm về lớp contradiction} trong quá trình fine-tune trên dữ
+liệu khó. Đây là một quan sát có giá trị thực tiễn: khi fine-tune trên bộ dữ liệu đối
+kháng nhỏ, khởi tạo từ checkpoint cùng tác vụ giúp ổn định hành vi mô hình.
+
+\subsection{Dropout 0,5 quá mạnh cho mô hình nhỏ}
+
+Giảm dropout từ 0,5 xuống 0,2 làm BiLSTM tăng 2,4 điểm accuracy và 3,0 điểm macro-F1 ---
+nhánh ablation duy nhất cải thiện đáng kể so với cấu hình gốc.
+
+\begin{notebox}[Nguyên tắc chọn cấu hình chính thức]
+Mặc dù nhánh \texttt{dropout 0,2} cho kết quả cao hơn, cấu hình chính thức của mô hình 2
+trong bảng kết quả chính \textbf{vẫn giữ dropout 0,5}. Lý do: chọn nhánh tốt nhất sau khi
+đã nhìn kết quả trên test rồi trình bày nó như baseline là một dạng tuning trên test set,
+vi phạm nguyên tắc so sánh công bằng. Kết quả của nhánh này được báo cáo đầy đủ ở bảng
+ablation.
+\end{notebox}
+
+\subsection{Nhánh ablation không thực hiện được}
+
+Kế hoạch ban đầu có nhánh \textit{có/không dùng embedding tiền huấn luyện PhoW2V} cho
+TextCNN và BiLSTM. Nhánh này \textbf{không được thực hiện} vì embedding PhoW2V chưa được
+nạp vào pipeline; cả hai mô hình đều dùng embedding khởi tạo ngẫu nhiên. Do đó không tồn
+tại cấu hình đối chứng để so sánh. Đây là một hạn chế của đồ án, được nêu lại ở mục Hạn
+chế.
 
 \chapter{Phân tích và thảo luận}
 
 \section{So sánh các họ kiến trúc}
-\begin{instructionbox}
-Không lặp lại bảng số liệu. Hãy giải thích nguyên nhân khác biệt dựa trên cấu trúc dữ liệu, inductive bias,
-pretraining, số tham số, chất lượng tối ưu và đặc điểm của từng kiến trúc.
-\end{instructionbox}
-\todoText{Phân tích CNN, RNN/LSTM, Transformer và external model.}
 
-\section{Phân tích lỗi}
-\begin{instructionbox}
-Chọn tối thiểu 10--20 trường hợp sai hoặc các nhóm lỗi đại diện. Phân loại nguyên nhân: nhãn mơ hồ,
-nhiễu dữ liệu, thiếu ngữ cảnh, lớp hiếm, domain shift, overfitting, preprocessing, ngưỡng quyết định,
-khả năng mô hình hoặc lỗi cài đặt.
-\end{instructionbox}
-\placeholderfigure{Các ví dụ dự đoán đúng và sai tiêu biểu}
+Thứ tự kết quả --- TextCNN 0,334, BiLSTM 0,379, PhoBERT 0,470, XLM-R 0,449 --- không giải
+thích được bằng số tham số. Nếu số tham số là yếu tố quyết định thì XLM-R large với 560
+triệu tham số phải dẫn đầu, và khoảng cách giữa TextCNN (4,4M) với BiLSTM (5,0M) phải
+không đáng kể. Thực tế cả hai điều đều không đúng.
+
+Ba yếu tố sau giải thích tốt hơn.
+
+\textbf{Thứ nhất: thời điểm hai câu được phép tương tác.} TextCNN và BiLSTM mã hóa tiền đề
+và giả thuyết \textit{độc lập}, rồi chỉ ghép hai vector ở tầng cuối. Toàn bộ thông tin về
+quan hệ giữa hai câu phải đi qua nút thắt cổ chai là phép toán
+$[\mathbf{u};\mathbf{v};|\mathbf{u}-\mathbf{v}|;\mathbf{u}\odot\mathbf{v}]$ trên hai vector
+512 chiều. Trong khi đó, PhoBERT và XLM-R nối hai câu thành một chuỗi, nên self-attention
+đối chiếu từng token của giả thuyết với từng token của tiền đề ngay từ tầng đầu tiên.
+
+Bằng chứng cho luận điểm này nằm ở nhánh ablation \textit{chỉ dùng giả thuyết}. Với
+BiLSTM, bỏ hoàn toàn tiền đề chỉ làm accuracy giảm 2,8 điểm (0,379 $\rightarrow$ 0,351).
+Nghĩa là tiền đề gần như không đóng góp gì --- mô hình về cơ bản không sử dụng được nó.
+Với PhoBERT, cùng phép cắt bỏ đó làm giảm 5,4 điểm, gấp đôi. Mô hình có cross-attention
+khai thác được tiền đề nhiều hơn hẳn.
+
+\textbf{Thứ hai: pretraining.} Khoảng cách 9,1 điểm giữa BiLSTM (0,379) và PhoBERT (0,470)
+không thể quy cho riêng kiến trúc, vì PhoBERT còn mang theo tri thức ngôn ngữ từ giai đoạn
+tiền huấn luyện trên kho ngữ liệu tiếng Việt cỡ lớn, trong khi hai mô hình từ đầu bắt đầu
+với embedding ngẫu nhiên và chỉ có 8.012 mẫu để học. Với dữ liệu ít như vậy, học biểu diễn
+ngôn ngữ từ con số không là bất khả thi --- đúng như đường cong huấn luyện đã cho thấy: mô
+hình chuyển sang ghi nhớ.
+
+\textbf{Thứ ba: chuyên biệt hóa ngôn ngữ thắng quy mô.} PhoBERT nhỏ hơn XLM-R large 4,1
+lần nhưng đạt kết quả ngang bằng về accuracy và vượt hẳn về macro-F1. Dung lượng mô hình
+đa ngữ phải chia cho 100 ngôn ngữ, còn PhoBERT dành trọn cho tiếng Việt và được tiền huấn
+luyện trên văn bản đã tách từ đúng chuẩn hình thái tiếng Việt.
+
+\subsection{Bốn mô hình có sai ở cùng chỗ không?}
 
 \begin{table}[H]
 \centering
-\caption{Phân loại lỗi của mô hình tốt nhất}
-\begin{tabularx}{\textwidth}{@{}Y C{2.4cm}Y@{}}
+\small
+\caption{Tỉ lệ đồng thuận giữa các cặp mô hình trên tập test}
+\begin{tabularx}{\textwidth}{@{}L{3.5cm}C{2.2cm}C{2.2cm}C{2.2cm}C{2.2cm}@{}}
 \toprule
-\textbf{Loại lỗi} & \textbf{Tần suất} & \textbf{Giải thích/giải pháp} \\
+ & \textbf{TextCNN} & \textbf{BiLSTM} & \textbf{PhoBERT} & \textbf{XLM-R} \\
 \midrule
-\todoText{...} & \todoText{...} & \todoText{...} \\
-\todoText{...} & \todoText{...} & \todoText{...} \\
-\todoText{...} & \todoText{...} & \todoText{...} \\
+TextCNN  & 1,000 & 0,500 & 0,426 & 0,382 \\
+BiLSTM   & 0,500 & 1,000 & 0,474 & 0,563 \\
+PhoBERT  & 0,426 & 0,474 & 1,000 & 0,501 \\
+XLM-R    & 0,382 & 0,563 & 0,501 & 1,000 \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
+Mức đồng thuận rất thấp: hai mô hình mạnh nhất chỉ đưa ra cùng dự đoán ở 50,1\% số mẫu.
+Bốn mô hình học những tín hiệu khác nhau chứ không cùng khai thác một đường tắt chung.
+
+Đồng thời, \textbf{212 trên 1.000 mẫu (21,2\%) bị cả bốn mô hình dự đoán sai}, và 78,8\%
+số mẫu có ít nhất một mô hình đúng. Con số 21,2\% này là ước lượng cho phần lõi thực sự
+khó của ViANLI --- những mẫu đòi hỏi kiến thức thế giới, suy luận nhiều bước, hoặc có nhãn
+gây tranh cãi. Khoảng cách giữa 78,8\% và accuracy 47,0\% của mô hình tốt nhất cũng cho
+thấy dư địa đáng kể cho hướng ensemble.
+
+\section{Phân tích lỗi}
+
+Mười hai mẫu mà PhoBERT dự đoán sai được trích xuất tự động, ưu tiên những mẫu mà cả bốn
+mô hình cùng sai, và lưu ở \texttt{outputs/logs/error\_examples.csv}.
+
+Một mẫu hình nổi bật ngay ở tập ví dụ này: \textbf{cả 12 mẫu đều có nhãn thật là
+\textit{contradiction} hoặc \textit{neutral}, không mẫu nào có nhãn \textit{entailment}},
+trong khi dự đoán của bốn mô hình áp đảo về phía \textit{entailment}. Kết hợp với
+confusion matrix ở chương trước, có thể kết luận các mô hình mang thiên lệch hệ thống:
+khi hai câu cùng nói về một chủ đề và chia sẻ nhiều từ ngữ, mô hình thiên về kết luận
+``suy ra được''. Đây chính xác là điểm yếu mà quy trình gán nhãn đối kháng nhắm vào.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Phân loại lỗi của mô hình tốt nhất (PhoBERT)}
+\begin{tabularx}{\textwidth}{@{}L{4.0cm}C{2.2cm}Y@{}}
+\toprule
+\textbf{Loại lỗi} & \textbf{Tần suất} & \textbf{Giải thích / hướng khắc phục} \\
+\midrule
+\todoText{Phủ định} & \todoText{...} & \todoText{...} \\
+\todoText{Số và định lượng} & \todoText{...} & \todoText{...} \\
+\todoText{Kiến thức thế giới} & \todoText{...} & \todoText{...} \\
+\todoText{Đồng tham chiếu} & \todoText{...} & \todoText{...} \\
+\todoText{Từ đồng nghĩa/diễn đạt lại} & \todoText{...} & \todoText{...} \\
+\todoText{Nhãn gây tranh cãi} & \todoText{...} & \todoText{...} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{notebox}[Phần cần tự hoàn thiện]
+Bảng trên phải được điền bằng cách đọc trực tiếp 12 ví dụ trong
+\texttt{outputs/logs/error\_examples.csv} và tự phân loại nguyên nhân. Việc phân loại này
+đòi hỏi phán đoán ngôn ngữ của người viết và không thể tự động hóa. Cột ``Nhóm lỗi'' trong
+tệp CSV được để trống sẵn cho mục đích đó.
+\end{notebox}
+
 \section{Chi phí tính toán và khả năng triển khai}
-\todoText{Thảo luận số tham số, bộ nhớ, tốc độ suy luận, kích thước model và lựa chọn phù hợp cho triển khai.}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Chi phí tính toán của bốn mô hình}
+\begin{tabularx}{\textwidth}{@{}L{3.4cm}C{1.8cm}C{1.9cm}C{1.8cm}C{1.7cm}C{2.2cm}@{}}
+\toprule
+\textbf{Mô hình} & \textbf{Params} & \textbf{Train} & \textbf{Suy luận} &
+\textbf{VRAM} & \textbf{Acc/1M params} \\
+\midrule
+TextCNN     & 4,4M   & 1,9 phút  & ---       & ---        & 0,0752 \\
+BiLSTM      & 5,0M   & 1,3 phút  & ---       & ---        & 0,0751 \\
+PhoBERT     & 135,0M & 10,9 phút & 3,02 ms   & 3,98\,GB   & 0,0035 \\
+XLM-R large & 559,9M & 46,8 phút & 16,23 ms  & 13,47\,GB  & 0,0008 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.75\textwidth]{cost_vs_accuracy.png}
+  \caption{Đánh đổi giữa kích thước mô hình và độ chính xác}
+\end{figure}
+
+So sánh trực tiếp giữa hai mô hình mạnh nhất cho kết luận rõ ràng về triển khai. XLM-R
+large cần \textbf{4,1 lần số tham số, 4,3 lần thời gian huấn luyện, 5,4 lần thời gian suy
+luận và 3,4 lần VRAM} so với PhoBERT, để đổi lấy accuracy thấp hơn 2,1 điểm --- mà chênh
+lệch đó lại không có ý nghĩa thống kê --- và macro-F1 thấp hơn 9,4 điểm.
+
+Trong mọi kịch bản triển khai thực tế, PhoBERT là lựa chọn đúng cho bài toán NLI tiếng
+Việt. Với 3,98\,GB VRAM đỉnh, nó chạy được trên GPU phổ thông; với 3,02 ms mỗi mẫu, nó đáp
+ứng được yêu cầu thời gian thực ở quy mô vừa. XLM-R large chỉ nên cân nhắc khi hệ thống
+bắt buộc phải phục vụ nhiều ngôn ngữ bằng một mô hình duy nhất.
+
+Cột cuối bảng cho thấy một góc nhìn khác: xét hiệu quả trên mỗi triệu tham số, hai mô hình
+nhỏ vượt trội. Tuy nhiên chỉ số này cần đọc thận trọng --- TextCNN đạt hiệu quả cao trên
+mỗi tham số nhưng accuracy tuyệt đối của nó không vượt được mốc đoán nhãn đa số, nên trên
+thực tế nó không có giá trị sử dụng.
 
 \section{Hạn chế và vấn đề đạo đức}
-\todoText{Nêu giới hạn dữ liệu, mô hình, metric, khả năng tổng quát hóa, bias, quyền riêng tư và rủi ro sử dụng.}
+
+\subsection{Hạn chế về thực nghiệm}
+
+\begin{itemize}[leftmargin=*,itemsep=3pt]
+  \item \textbf{Chỉ chạy một seed.} Mọi kết quả đều dùng seed 42. Với tập test 1.000 mẫu,
+        sai số ước tính khoảng $\pm 1{,}5$ điểm phần trăm. Do đó các chênh lệch dưới 3
+        điểm trong báo cáo không nên được diễn giải như khác biệt chắc chắn. Kiểm định
+        McNemar được dùng để bù đắp một phần cho hạn chế này ở cặp mô hình quan trọng
+        nhất, nhưng cách làm chặt chẽ hơn là chạy 3 seed và báo cáo trung bình kèm độ
+        lệch chuẩn.
+  \item \textbf{Không dùng embedding tiền huấn luyện cho hai mô hình từ đầu.} TextCNN và
+        BiLSTM dùng embedding khởi tạo ngẫu nhiên. Kết quả của hai mô hình này vì vậy là
+        cận dưới, không phải năng lực tối đa của hai họ kiến trúc. Nhánh ablation về
+        PhoW2V cũng không thực hiện được vì lý do này.
+  \item \textbf{Chưa thử ESIM hoặc kiến trúc có co-attention.} Luận điểm trung tâm của
+        chương phân tích là cross-attention quan trọng hơn quy mô mô hình. Cách kiểm chứng
+        thuyết phục nhất là một mô hình BiLSTM \textit{có} co-attention: nếu nó thu hẹp
+        được khoảng cách với PhoBERT thì luận điểm được xác nhận trực tiếp. Đây là thí
+        nghiệm còn thiếu.
+  \item \textbf{Số đo thời gian không chuẩn hóa.} Bốn mô hình chạy ở các phiên Kaggle khác
+        nhau, có thể trên các loại GPU khác nhau; thời gian suy luận của TextCNN và BiLSTM
+        chưa được đo.
+  \item \textbf{Chỉ đánh giá trên một bộ dữ liệu.} Không có bằng chứng về khả năng tổng
+        quát hóa sang các bộ NLI tiếng Việt khác hay sang miền văn bản ngoài báo chí.
+\end{itemize}
+
+\subsection{Hạn chế về dữ liệu và diễn giải}
+
+Với accuracy tốt nhất là 0,470, không mô hình nào trong đồ án đạt mức có thể triển khai
+cho tác vụ suy luận tự động không có giám sát. Cần nhấn mạnh rằng đây là đặc tính của
+benchmark đối kháng chứ không phải dấu hiệu cài đặt sai: ViANLI được thiết kế để làm khó
+các mô hình mạnh nhất tại thời điểm công bố.
+
+\todoText{Đối chiếu con số 0,470 với kết quả tốt nhất báo cáo trong bài báo gốc ViANLI ---
+cần đọc bài báo để lấy số chính xác, không trích theo trí nhớ.}
+
+\subsection{Vấn đề đạo đức}
+
+\begin{itemize}[leftmargin=*,itemsep=3pt]
+  \item \textbf{Giấy phép.} Bộ dữ liệu thuộc giấy phép CC BY-NC-SA 4.0, chỉ cho phép sử
+        dụng phi thương mại. PhoBERT thuộc giấy phép AGPL-3.0 --- cần lưu ý nếu có ý định
+        phát hành lại trọng số đã fine-tune. Hai checkpoint XLM-R thuộc giấy phép MIT.
+  \item \textbf{Thiên lệch miền dữ liệu.} Tiền đề được lấy từ báo chí tiếng Việt, chủ yếu
+        là tin thời sự, thể thao và kinh tế. Mô hình huấn luyện trên dữ liệu này có thể
+        kém đi rõ rệt trên văn nói, mạng xã hội, văn bản chuyên ngành hoặc phương ngữ
+        vùng miền.
+  \item \textbf{Rủi ro khi sử dụng.} Một mô hình NLI đạt 47\% accuracy tuyệt đối không
+        được dùng để tự động phán quyết tính đúng sai của thông tin. Nếu triển khai trong
+        hệ thống kiểm chứng thông tin, nó chỉ nên đóng vai trò gợi ý cho người kiểm duyệt,
+        kèm ngưỡng tin cậy rõ ràng. Đặc biệt nguy hiểm là mô hình XLM-R large: nó gần như
+        không bao giờ dự đoán \textit{contradiction}, nên sẽ bỏ sót hầu hết các trường hợp
+        mâu thuẫn --- đúng loại lỗi tệ nhất cho ứng dụng kiểm chứng.
+  \item \textbf{Quyền riêng tư.} Dữ liệu là văn bản báo chí đã công khai, có chứa tên
+        người thật trong bối cảnh tin tức. Không có thông tin định danh riêng tư nào được
+        thêm vào, và đồ án không phát hành lại dữ liệu.
+\end{itemize}
 
 \chapter{Kết luận và hướng phát triển}
 
 \section{Kết luận}
-\begin{instructionbox}
-Tóm tắt câu trả lời cho các câu hỏi thực nghiệm. Nêu mô hình tốt nhất theo cả chất lượng và chi phí;
-không chỉ lặp lại con số trong bảng.
-\end{instructionbox}
-\todoText{Viết kết luận.}
+
+Đồ án đã xây dựng, huấn luyện và đánh giá bốn mô hình thuộc bốn họ kiến trúc trên bộ dữ
+liệu suy luận ngôn ngữ tự nhiên đối kháng tiếng Việt ViANLI, dưới một giao thức đánh giá
+thống nhất. Trả lời bốn câu hỏi thực nghiệm đặt ra ở chương Giới thiệu:
+
+\textbf{CH1 --- Họ kiến trúc nào phù hợp nhất?} Transformer dạng cross-encoder, và yếu tố
+quyết định là \textit{thời điểm hai câu được phép tương tác}, không phải số tham số. Bằng
+chứng: bỏ hoàn toàn tiền đề chỉ làm BiLSTM giảm 2,8 điểm nhưng làm PhoBERT giảm 5,4 điểm
+--- mô hình ghép muộn về cơ bản không sử dụng được tiền đề.
+
+\textbf{CH2 --- Pretraining đóng góp bao nhiêu?} Rất nhiều. Khoảng cách 9,1 điểm giữa
+BiLSTM và PhoBERT phần lớn đến từ tri thức ngôn ngữ tiền huấn luyện, vì với 8.012 mẫu thì
+học biểu diễn từ đầu là bất khả thi. Nhưng quy mô không thay cho chuyên biệt hóa: PhoBERT
+135 triệu tham số ngang bằng XLM-R large 560 triệu tham số về accuracy ($p = 0{,}32$) và
+vượt hẳn về macro-F1 (0,466 so với 0,372).
+
+\textbf{CH3 --- Tách từ tiếng Việt đáng giá bao nhiêu?} 4,9 điểm accuracy. Đây là bước
+tiền xử lý bắt buộc chứ không phải tùy chọn cấu hình khi làm việc với PhoBERT.
+
+\textbf{CH4 --- Mô hình sai ở đâu?} Tập trung ở nhóm có độ trùng lặp từ vựng cao giữa hai
+câu, ở lớp \textit{neutral} và \textit{contradiction}, và mang thiên lệch hệ thống về phía
+kết luận \textit{entailment}. Mức đồng thuận giữa các mô hình rất thấp (PhoBERT và XLM-R
+chỉ đồng ý ở 50,1\% số mẫu) và 21,2\% số mẫu bị cả bốn mô hình cùng dự đoán sai.
+
+\textbf{Mô hình được khuyến nghị} cho bài toán này là PhoBERT: tốt nhất ở cả hai metric,
+đồng thời rẻ hơn hẳn ở mọi chiều chi phí. Cần nhấn mạnh rằng khuyến nghị này dựa trên
+macro-F1 và chi phí, không dựa trên accuracy --- vì chênh lệch accuracy với XLM-R large
+không đạt ý nghĩa thống kê.
+
+Cuối cùng, một bài học về phương pháp thực nghiệm. Vòng thí nghiệm đầu tiên của đồ án đã
+huấn luyện toàn bộ chín mô hình trên văn bản chưa tách từ do một cơ chế dự phòng im lặng,
+và sai sót này chỉ bị phát hiện nhờ đối chiếu chéo giữa các tệp kết quả. Kinh nghiệm rút
+ra: mọi bước tiền xử lý có khả năng thất bại đều phải báo lỗi lớn tiếng thay vì âm thầm
+bỏ qua, và phải ghi lại trong tệp kết quả rằng bước đó đã thực sự chạy hay chưa. Nếu thiếu
+điều kiện thứ hai, một sai sót có thể sống sót qua trọn một vòng thực nghiệm mà không để
+lại dấu vết nào.
 
 \section{Hướng phát triển}
-\todoText{Đề xuất 3--5 hướng có thể thực hiện được: thêm dữ liệu, cải thiện nhãn, kiến trúc mới, tối ưu triển khai, giải thích mô hình, v.v.}
 
+\begin{enumerate}[leftmargin=*,itemsep=4pt]
+  \item \textbf{ESIM hoặc BiLSTM có co-attention.} Đây là thí nghiệm có giá trị khoa học
+        cao nhất trong danh sách, vì nó kiểm chứng trực tiếp luận điểm trung tâm của báo
+        cáo. Nếu một mô hình RNN có cross-attention thu hẹp được đáng kể khoảng cách với
+        PhoBERT, luận điểm ``cross-attention quan trọng hơn quy mô'' được xác nhận; nếu
+        không, cần quy phần lớn khoảng cách cho pretraining.
+  \item \textbf{Nạp embedding tiền huấn luyện PhoW2V} cho TextCNN và BiLSTM, đồng thời
+        khôi phục nhánh ablation về pretrained embedding đã bị bỏ.
+  \item \textbf{Ensemble PhoBERT và XLM-R large} bằng cách cộng logit. Hai mô hình chỉ
+        đồng thuận ở 50,1\% số mẫu và 78,8\% số mẫu có ít nhất một mô hình đúng, nên dư
+        địa cải thiện là có thật.
+  \item \textbf{Chạy nhiều seed và báo cáo trung bình kèm độ lệch chuẩn}, thay cho kết quả
+        một seed hiện tại.
+  \item \textbf{Xử lý riêng lớp \textit{contradiction}.} Đây là lớp yếu nhất ở ba trong
+        bốn mô hình và cũng là lớp quan trọng nhất cho ứng dụng thực tế. Hướng khả thi:
+        trọng số lớp, focal loss, hoặc tăng cường dữ liệu bằng cách sinh thêm cặp mâu
+        thuẫn.
+\end{enumerate}
 
 % ====================== REFERENCES ===============================
 \chapter*{Tài liệu tham khảo}
 \addcontentsline{toc}{chapter}{Tài liệu tham khảo}
-\begin{instructionbox}
-Sử dụng một chuẩn trích dẫn nhất quán (IEEE/APA). Mỗi mô hình bên ngoài phải có trích dẫn bài báo hoặc
-kho mã nguồn. Không chỉ đưa URL; cần ghi tác giả, tiêu đề, năm và nguồn công bố khi có.
-\end{instructionbox}
 
-% đọc thêm citation bằng bibfile 
 \begin{thebibliography}{99}
+
+\bibitem{vianli}
+T. V. Huynh, K. V. Nguyen, and N. L.-T. Nguyen,
+``A New Benchmark Dataset and Mixture-of-Experts Language Models for Adversarial Natural
+Language Inference in Vietnamese,''
+\textit{Expert Systems with Applications}, p.~130109, 2025.
+doi: 10.1016/j.eswa.2025.130109.
+
+\bibitem{phobert}
+D. Q. Nguyen and A. T. Nguyen,
+``PhoBERT: Pre-trained Language Models for Vietnamese,''
+in \textit{Findings of the Association for Computational Linguistics: EMNLP 2020}, 2020,
+pp.~1037--1042.
+
+\bibitem{xlmr}
+A. Conneau, K. Khandelwal, N. Goyal, V. Chaudhary, G. Wenzek, F. Guzmán, E. Grave,
+M. Ott, L. Zettlemoyer, and V. Stoyanov,
+``Unsupervised Cross-lingual Representation Learning at Scale,''
+\textit{arXiv preprint arXiv:1911.02116}, 2019.
+
+\bibitem{textcnn}
+Y. Kim, ``Convolutional Neural Networks for Sentence Classification,''
+in \textit{Proceedings of the 2014 Conference on Empirical Methods in Natural Language
+Processing (EMNLP)}, 2014, pp.~1746--1751.
+
+\bibitem{esim}
+Q. Chen, X. Zhu, Z. Ling, S. Wei, H. Jiang, and D. Inkpen,
+``Enhanced LSTM for Natural Language Inference,''
+in \textit{Proceedings of the 55th Annual Meeting of the Association for Computational
+Linguistics (ACL)}, 2017, pp.~1657--1668.
+
+\bibitem{infersent}
+A. Conneau, D. Kiela, H. Schwenk, L. Barrault, and A. Bordes,
+``Supervised Learning of Universal Sentence Representations from Natural Language
+Inference Data,''
+in \textit{Proceedings of EMNLP}, 2017, pp.~670--680.
+
+\bibitem{vaswani2017}
+A. Vaswani et al., ``Attention Is All You Need,''
+in \textit{Advances in Neural Information Processing Systems}, 2017.
+
 \bibitem{goodfellow2016}
 I. Goodfellow, Y. Bengio, and A. Courville,
 \textit{Deep Learning}. MIT Press, 2016.
 
-\bibitem{vaswani2017}
-A. Vaswani et al., ``Attention Is All You Need,'' in \textit{Advances in Neural Information Processing Systems}, 2017.
-
-\bibitem{dataset}
-\todoText{Thêm trích dẫn chính thức của bộ dữ liệu.}
-
-\bibitem{externalmodel}
-\todoText{Thêm trích dẫn bài báo hoặc repository của mô hình bên ngoài.}
 \end{thebibliography}
 
 % ====================== APPENDICES ================================
