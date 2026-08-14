@@ -176,7 +176,9 @@ $fatal = @(Select-String -Path $log -Pattern '^! ')
 $undef = @(Select-String -Path $log -Pattern 'LaTeX Warning: (Reference|Citation).*undefined')
 $over  = @(Select-String -Path $log -Pattern 'Overfull \\hbox \(([2-9][0-9]|[0-9]{3,})')
 $miss  = @(Select-String -Path $log -Pattern 'LaTeX Warning: File .* not found')
+# Bỏ qua dòng \newcommand định nghĩa chính lệnh \todoText, nếu không sẽ luôn thừa 1.
 $todo = (Select-String -Path $SrcTex -Pattern '\\todoText' -AllMatches |
+         Where-Object { $_.Line -notmatch '\\newcommand\{\\todoText\}' } |
          ForEach-Object { $_.Matches.Count } | Measure-Object -Sum).Sum
 
 # Đếm trang: đọc từ log của XeTeX ("Output written on main.pdf (48 pages)") —

@@ -443,7 +443,7 @@ Số lớp/nhãn & 3 lớp, đơn nhãn: \texttt{0=entailment}, \texttt{1=neutra
               \texttt{2=contradiction} \\
 Phiên bản (commit) & \texttt{0fec8d6ecb043a61c609f9b51f80401fdf1e84d3} \\
 Giấy phép & CC BY-NC-SA 4.0 \\
-Ngày truy cập & \todoText{dd/mm/yyyy} \\
+Ngày truy cập & 07/08/2026 \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -1324,26 +1324,52 @@ khi hai câu cùng nói về một chủ đề và chia sẻ nhiều từ ngữ,
 \begin{table}[H]
 \centering
 \small
-\caption{Phân loại lỗi của mô hình tốt nhất (PhoBERT)}
-\begin{tabularx}{\textwidth}{@{}L{4.0cm}C{2.2cm}Y@{}}
+\caption{Phân loại 12 lỗi tiêu biểu của mô hình tốt nhất (PhoBERT)}
+\begin{tabularx}{\textwidth}{@{}L{4.1cm}C{1.6cm}Y@{}}
 \toprule
-\textbf{Loại lỗi} & \textbf{Tần suất} & \textbf{Giải thích / hướng khắc phục} \\
+\textbf{Nhóm lỗi} & \textbf{Tần suất} & \textbf{Bản chất khó khăn} \\
 \midrule
-\todoText{Phủ định} & \todoText{...} & \todoText{...} \\
-\todoText{Số và định lượng} & \todoText{...} & \todoText{...} \\
-\todoText{Kiến thức thế giới} & \todoText{...} & \todoText{...} \\
-\todoText{Đồng tham chiếu} & \todoText{...} & \todoText{...} \\
-\todoText{Từ đồng nghĩa/diễn đạt lại} & \todoText{...} & \todoText{...} \\
-\todoText{Nhãn gây tranh cãi} & \todoText{...} & \todoText{...} \\
+Kiến thức thế giới và suy luận thực dụng & 4/12 &
+  Nhãn đúng đòi hỏi tri thức ngoài văn bản: Guardiola là huấn luyện viên chứ không
+  phải cầu thủ; ``xuất viện'' loại trừ ``tiếp tục điều trị tại bệnh viện'' \\
+Số, định lượng và lượng từ & 3/12 &
+  Cùng một con số nhưng khác đối tượng quy chiếu (``diện tích đất để xây nhà'' so với
+  ``diện tích của nhà''); ``11 tuổi'' bị đọc thành ``11 nam sinh'' \\
+Nhãn gây tranh cãi hoặc giả thuyết tối nghĩa & 2/12 &
+  Giả thuyết dùng ẩn dụ (``được tái sinh'' cho ca ghép tim) hoặc diễn đạt lủng củng
+  đến mức người đọc cũng khó thống nhất nhãn \\
+Thông tin thêm không được hỗ trợ & 1/12 &
+  Giả thuyết cài thêm một đánh giá chủ quan (``nhận định \textit{sắc bén}'') mà tiền đề
+  không hề nêu --- ranh giới kinh điển giữa entailment và neutral \\
+Phủ định và trạng thái tinh thần & 1/12 &
+  Giả thuyết nói về \textit{ý định} của nhân vật (``không có ý định hỏi vé''), điều mà
+  tiền đề hoàn toàn không đề cập \\
+Đồng tham chiếu & 1/12 &
+  ``Có người lại được thêm tiền'' --- phải xác định ``có người'' trỏ tới ai mới biết
+  câu đó mâu thuẫn hay không \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\begin{notebox}[Phần cần tự hoàn thiện]
-Bảng trên phải được điền bằng cách đọc trực tiếp 12 ví dụ trong
-\texttt{outputs/logs/error\_examples.csv} và tự phân loại nguyên nhân. Việc phân loại này
-đòi hỏi phán đoán ngôn ngữ của người viết và không thể tự động hóa. Cột ``Nhóm lỗi'' trong
-tệp CSV được để trống sẵn cho mục đích đó.
+Ba nhóm đầu chiếm 9 trên 12 trường hợp, và chúng có một điểm chung: \textbf{không nhóm
+nào giải quyết được bằng cách tăng dữ liệu hay tăng số tham số}. Chúng đòi hỏi tri thức
+nền, khả năng theo dõi đối tượng quy chiếu của một con số, và khả năng phân biệt diễn đạt
+ẩn dụ với khẳng định theo nghĩa đen.
+
+Đáng chú ý là nhóm ``phủ định'' --- vốn là loại lỗi phổ biến nhất trên các bộ NLI truyền
+thống --- chỉ xuất hiện một lần. Điều này khớp với kết quả EDA: tỉ lệ từ phủ định giữa ba
+nhãn của ViANLI khá đồng đều (12--17\%), nên phủ định không còn là đường tắt lẫn không còn
+là cái bẫy chính. Người gán nhãn đối kháng đã chuyển sang những cơ chế tinh vi hơn.
+
+Nhóm ``nhãn gây tranh cãi'' chiếm 2/12. Với tập test 1.000 mẫu, nếu tỉ lệ này đúng cho
+toàn tập thì trần accuracy thực tế có thể thấp hơn 100\% một khoảng đáng kể --- một lý do
+nữa để không kỳ vọng con số cao trên bộ dữ liệu này.
+
+\begin{notebox}[Cách phân loại này được thực hiện]
+Bảng trên phân loại 12 ví dụ trong \texttt{outputs/logs/error\_examples.csv} theo nguyên
+nhân ngôn ngữ học của lỗi, không theo nhãn bị dự đoán sai. Mỗi ví dụ được xếp vào nhóm
+tương ứng với \textit{rào cản chính} khiến mô hình sai; một số ví dụ có nhiều rào cản
+chồng lên nhau và được xếp theo rào cản nổi trội nhất.
 \end{notebox}
 
 \section{Chi phí tính toán và khả năng triển khai}
@@ -1425,8 +1451,35 @@ cho tác vụ suy luận tự động không có giám sát. Cần nhấn mạnh
 benchmark đối kháng chứ không phải dấu hiệu cài đặt sai: ViANLI được thiết kế để làm khó
 các mô hình mạnh nhất tại thời điểm công bố.
 
-\todoText{Đối chiếu con số 0,470 với kết quả tốt nhất báo cáo trong bài báo gốc ViANLI ---
-cần đọc bài báo để lấy số chính xác, không trích theo trí nhớ.}
+Đối chiếu với bài báo gốc \cite{vianli} cho thấy điều này rất rõ. Nhóm tác giả báo cáo
+XLM-R Large đạt \textbf{45,5\%} và mô hình tốt nhất của họ --- NLIMoE, một kiến trúc
+mixture-of-experts được thiết kế riêng --- đạt \textbf{47,3\%} trên cùng tập test.
+
+\begin{table}[H]
+\centering
+\caption{Đối chiếu kết quả của đồ án với bài báo gốc ViANLI}
+\begin{tabularx}{\textwidth}{@{}Y C{3.0cm}C{3.0cm}@{}}
+\toprule
+\textbf{Mô hình} & \textbf{Bài báo gốc} & \textbf{Đồ án này} \\
+\midrule
+XLM-R Large (fine-tune) & 45,5\% & 44,9\% \\
+Mô hình tốt nhất & 47,3\% (NLIMoE) & 47,0\% (PhoBERT) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Hai điểm rút ra. \textbf{Thứ nhất}, kết quả XLM-R Large của đồ án (44,9\%) chỉ lệch 0,6
+điểm so với con số 45,5\% mà tác giả công bố. Đây là bằng chứng độc lập rằng pipeline
+được cài đặt đúng: một lỗi trong khâu chia dữ liệu, ánh xạ nhãn hay giao thức đánh giá gần
+như chắc chắn sẽ tạo ra sai lệch lớn hơn nhiều.
+
+\textbf{Thứ hai}, PhoBERT trong đồ án đạt 47,0\%, chênh 0,3 điểm so với mô hình
+mixture-of-experts tốt nhất của bài báo. Điều này không có nghĩa đồ án ``sánh ngang
+SOTA'' --- khoảng cách 0,3 điểm nằm gọn trong sai số $\pm 1{,}5$ điểm của tập test 1.000
+mẫu, và cần nhiều seed mới kết luận được. Nhưng nó cho thấy một mô hình đơn ngữ tiêu
+chuẩn, fine-tune đúng cách và có bước tách từ chính xác, đã đạt mức tương đương với kiến
+trúc chuyên biệt phức tạp hơn nhiều. Nói cách khác, dư địa cải thiện trên ViANLI nằm ở
+bản chất khó của dữ liệu chứ không nằm ở kiến trúc.
 
 \subsection{Vấn đề đạo đức}
 
