@@ -25,6 +25,9 @@ nhau ở mọi lần chạy nên 4 mô hình so sánh được với nhau.
 | phobert_lr5e-5 | 0.418 | — | ablation |
 | phobert_no_wordseg | 0.421 | 0.4209 | **KHÔNG hợp lệ — xem bên dưới** |
 
+**Cảnh báo:** mọi số của TextCNN, BiLSTM và PhoBERT ở trên đều là kết quả chạy trên văn
+bản **chưa tách từ** (xem mục 1 phần Việc còn lại). Chỉ 3 run XLM-R là dùng được ngay.
+
 Điểm đáng viết vào báo cáo: `xlmr_large_finetuned` accuracy cao nhất (0.449) nhưng
 macro-F1 chỉ 0.372 vì gần như bỏ hẳn lớp *contradiction* (phân bố dự đoán
 465/514/**21**). `xlmr_xnli_finetuned` accuracy thấp hơn (0.423) nhưng dự đoán cân
@@ -35,21 +38,43 @@ macro-F1 chỉ 0.372 vì gần như bỏ hẳn lớp *contradiction* (phân bố
 
 ## Việc còn lại
 
-### 1. Chạy lại `03_phobert.ipynb` — ablation `no_wordseg` đang vô nghĩa
+### 1. Chạy lại `02_cnn_rnn.ipynb` VÀ `03_phobert.ipynb` — cả hai train trên text chưa tách từ
 
-`phobert_no_wordseg` trùng **từng bit** với `phobert_base_v2` (predictions giống hệt
-nhau, macro-F1 khớp tới 14 chữ số) → nhánh bỏ tách từ thực chất không bỏ gì cả.
-Nguyên nhân: lần chạy đó `underthesea` chưa cài nên `word_segment()` im lặng trả về
-văn bản gốc, cả hai nhánh chạy trên cùng dữ liệu.
+`underthesea` không có sẵn trên Kaggle → `word_segment()` fallback im lặng → **9 run
+trong `outputs/` hiện tại đều dùng văn bản chưa tách từ**, dù `SEGMENT = True`.
 
-Đã có assert chặn ở `notebooks/03_phobert.ipynb` (cell probe `"_" in _probe`) từ commit
-audit, nhưng kết quả hiện tại là của lần chạy **trước** khi thêm assert. Cần Save & Run
-All lại notebook 03 trên Kaggle. Hai lựa chọn:
+Bằng chứng:
 
-- Chạy lại → có Δ thật cho bảng ablation. **Nên làm**, notebook 03 chỉ ~14 phút.
-- Không chạy lại → phải **xóa dòng `no_wordseg` khỏi bảng ablation** và ghi rõ trong
-  báo cáo là chưa kiểm chứng được. Không được để Δ = 0.000 rồi diễn giải là
-  "tách từ không quan trọng" — đó là kết luận sai.
+- `outputs/checkpoints/shared_vocab.txt`: 0/5365 token chứa `_` (nb 02)
+- `phobert_no_wordseg` trùng **từng bit** với `phobert_base_v2`, macro-F1 khớp tới 14
+  chữ số → nhánh "bỏ tách từ" thực chất không bỏ gì (nb 03)
+
+Mức độ khác nhau giữa hai notebook:
+
+- **nb 03 là lỗi thật.** PhoBERT-base-v2 pretrain trên văn bản đã tách từ, cho ăn text
+  thô là dùng sai mô hình. Con số 0.421 đang bị ghi nhầm nhãn. Bắt buộc chạy lại.
+- **nb 02 nhẹ hơn** — tách từ chỉ là *tùy chọn* cho CNN/RNN, kết quả 0.322/0.374 vẫn
+  hợp lệ, chỉ bị mô tả sai. Nhưng phải chạy lại để 4 mô hình cùng điều kiện tiền xử lý,
+  nếu không thì phần "nguyên tắc so sánh công bằng" của báo cáo không đứng được.
+  Phương án rẻ: giữ kết quả cũ, đổi `SEGMENT = False` cho khớp sự thật và ghi rõ trong
+  báo cáo. Trung thực nhưng yếu hơn.
+
+Code đã vá xong (commit `52b429a`): assert chặn ở cả hai notebook, `segmented` tường
+minh trong summary, `save_preds()` ghi npy ngay sau từng run. Chạy lại là chạy đúng.
+
+Khi chạy, kiểm hai dòng đầu trước khi để nó train tiếp:
+
+```
+[word_segment] backend = underthesea          <- không được là none
+Tách từ: Tọa_đàm được tổ_chức tại Hà_Nội      <- phải có dấu _
+```
+
+**Lưu ý:** mọi số của TextCNN/BiLSTM/PhoBERT sẽ đổi, kể cả hai mô hình chính. Đừng viết
+chương Kết quả trước khi có bộ số mới. nb 01 (EDA) và nb 04 (XLM-R) không ảnh hưởng —
+nb 01 gọi `tokenize(segment=False)` tường minh, nb 04 dùng SentencePiece.
+
+Thứ tự: push code → Kaggle Save & Run All nb 02 (~1-2h) → nb 03 (~2-3h) → tải về
+`results/5`, `results/6`.
 
 ### 2. Chạy `05_analysis.ipynb` (CPU, ~2 phút)
 
