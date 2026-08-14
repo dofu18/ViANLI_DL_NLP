@@ -30,6 +30,7 @@ __pycache__/
 .venv/
 
 # LaTeX build
+reports/.build/
 *.aux
 *.log
 *.out
