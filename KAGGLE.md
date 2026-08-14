@@ -116,17 +116,52 @@ một lỗi ở giữa là mất toàn bộ. Chỉ nên làm khi đã chạy tr�
 ## 6. Tải kết quả về máy
 
 Sau mỗi lần chạy, vào tab **Output** của notebook (hoặc của version) → **Download All**.
-Giải nén và chép vào repo local:
+Giải nén **nguyên cục** vào `results/<số tiếp theo>/` — không cần sắp xếp hay lọc gì:
 
 ```
-outputs/logs/*.json    outputs/logs/*.csv
+D:\NLP\results\1\   <- output notebook 02
+D:\NLP\results\2\   <- output notebook 03
+D:\NLP\results\3\   <- output notebook 04 Part A
+D:\NLP\results\4\   <- output notebook 04 Part B
+```
+
+`results/` đã nằm trong `.gitignore` nên đây là vùng đệm thô, đổ vào bao nhiêu lần cũng
+được. Từ đó mới chép sang `outputs/` — nơi chứa dữ liệu chính thức đi vào báo cáo:
+
+```
+outputs/logs/*.json    outputs/logs/*.csv    outputs/logs/predictions/*.npy
 outputs/figures/*.png
-data/splits/*.csv
 ```
 
-Hình trong `outputs/figures/` chép sang Overleaf để chèn vào `reports/main.tex`.
+**Không** chép `outputs/checkpoints/`. Hình trong `outputs/figures/` chép sang Overleaf
+để chèn vào `reports/main.tex`.
+
+Bước từ vùng đệm sang chính thức là chỗ dễ sai nhất — luôn chạy audit trước khi commit:
+
+```python
+# accuracy trong *_summary.json phải khớp (predictions/<run>.npy == y_true.npy).mean()
+# và khớp accuracy trong *_test.json; y_true.npy phải giống nhau ở MỌI notebook
+```
+
+Đã bắt được lỗi thật bằng cách này: `xlmr_large_finetuned_summary.json` còn giữ số của
+lần chạy cũ (0.455 / 4 epoch) trong khi `predictions/` là của lần mới (0.449 / 5 epoch).
+
+Lưu ý: mỗi Kaggle Version chỉ chứa các run của riêng nó, nên `*_results.csv` phải **sinh
+lại** từ toàn bộ `*_summary.json` chứ không chép đè.
 
 **Đừng commit checkpoint** (`.pt`, `.safetensors`) lên GitHub — `.gitignore` đã chặn sẵn.
+
+### Kaggle tự push notebook lên GitHub
+
+Nếu notebook được tạo từ GitHub, Kaggle sẽ commit ngược bản **đã chạy** lên `origin/main`
+(JSON một dòng ~200KB kèm toàn bộ output, và giữ nguyên giá trị biến lúc chạy — ví dụ
+`PART = "B"`). Sau khi `git pull`, khôi phục lại bản source sạch:
+
+```bash
+git checkout <commit trước đó> -- notebooks/04_xlmr_external.ipynb
+```
+
+Kết quả thật lấy từ `results/<n>/` chứ không lấy từ output nhúng trong notebook.
 
 ## 7. Xử lý sự cố thường gặp
 
@@ -138,7 +173,7 @@ Hình trong `outputs/figures/` chép sang Overleaf để chèn vào `reports/mai
 | Hết dung lượng `/kaggle/working` | Giới hạn 20GB. Đã đặt `save_total_limit=1`; xóa bớt checkpoint cũ giữa các lần chạy |
 | Notebook chạy quá 12h rồi bị kill | Dùng Save & Run All (mục 4), hoặc giảm số epoch/nhánh ablation |
 | Hết quota GPU giữa tuần | Ưu tiên PhoBERT (notebook 03). XLM-R có thể hạ xuống `xlm-roberta-base` — **ghi rõ lý do trong báo cáo** |
-| `underthesea` cài chậm/lỗi | Bỏ comment dòng `!pip install -q underthesea` ở cell đầu; nếu vẫn lỗi, `word_segment` tự trả về văn bản gốc và bạn ghi điều này vào phần ablation |
+| `underthesea` cài chậm/lỗi | Cài lại rồi **restart kernel**. Notebook 02 và 03 có assert chặn ngay ở cell tách từ — cứ để nó dừng, ĐỪNG chạy tiếp. Xem mục 10. |
 | Kết quả khác nhau giữa các lần chạy | GPU có phần không tất định. Đã cố định seed; nếu cần chặt hơn thì chạy 3 seed và báo cáo mean ± std |
 
 ## 8. Bảo mật
@@ -169,3 +204,42 @@ print("VRAM       :", f"{torch.cuda.get_device_properties(0).total_memory/1e9:.1
 print("Seed       : 42")
 !free -g | head -2
 ```
+
+## 10. Bẫy tách từ tiếng Việt — đọc trước khi chạy 02 và 03
+
+Kaggle **không cài sẵn `underthesea`**. Lần chạy đầu tiên của dự án dính đúng bẫy này:
+`word_segment()` fallback im lặng trả về văn bản gốc, nên **cả 5 run của notebook 02 và
+cả 4 run của notebook 03 đều huấn luyện trên text CHƯA tách từ** mà không có dấu hiệu gì.
+Hậu quả nặng nhất: ablation `phobert_no_wordseg` trùng **từng bit** với baseline
+(Δ = 0.000), và PhoBERT — mô hình *bắt buộc* đầu vào đã tách từ — bị dùng sai cách.
+
+Cách phát hiện sau khi đã chạy:
+
+```python
+# vocab của notebook 02 phải có token nối bằng "_"
+v = open("outputs/checkpoints/shared_vocab.txt", encoding="utf-8").read().split("\n")
+print(sum("_" in t for t in v), "/", len(v))   # bằng 0 là hỏng
+```
+
+Cách phòng, đã cài sẵn trong code:
+
+- `word_segment(strict=True)` — mặc định — **raise** thay vì fallback. Nhánh PhoBERT dùng
+  cái này. Chỉ nhánh CNN/RNN mới được `strict=False`, vì ở đó tách từ là tùy chọn thật.
+- `_get_segmenter()` in ra `[word_segment] backend = underthesea` hoặc `= none` ngay lần
+  gọi đầu tiên.
+- Notebook 02 (cell `SEGMENT`) và notebook 03 (cell `prep`) đều có assert dò thử câu
+  `"Tọa đàm được tổ chức tại Hà Nội"` và dừng nếu kết quả không chứa `_`.
+
+Khi chạy, kiểm hai dòng đầu tiên trước khi để nó train tiếp:
+
+```
+[word_segment] backend = underthesea          <- phải là underthesea, không được là none
+Tách từ: Tọa_đàm được tổ_chức tại Hà_Nội      <- phải có dấu _
+```
+
+Nếu assert dừng notebook: cài lại `underthesea`, **restart kernel**, chạy lại từ đầu.
+Đừng gỡ assert. Đừng đặt `SEGMENT = False` chỉ để nó chạy qua — trừ khi m thực sự muốn
+nhánh không tách từ và **ghi rõ điều đó trong báo cáo**.
+
+Notebook 04 (XLM-R) không liên quan: nó dùng SentencePiece, `word_segment: false` trong
+`configs/xlmr_external.yaml` là cố ý.
