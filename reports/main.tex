@@ -170,11 +170,11 @@
 \newcommand{\DatasetName}{ViANLI (UIT-NLP)}
 % Các lệnh dưới đây CHỈ chứa giá trị, không chứa nhãn — nhãn đã có sẵn ở cột trái
 % của bảng trên trang bìa. Để nhãn ở cả hai nơi sẽ ra "Giảng viên: Giảng viên: ...".
-\newcommand{\ClassName}{AIN501.\todoText{xx}}
-\newcommand{\GroupName}{\todoText{Họ và tên -- MSSV}}
-\newcommand{\InstructorName}{\todoText{Họ và tên giảng viên}}
-\newcommand{\SemesterName}{\todoText{Fall/Spring/Summer 20XX}}
-\newcommand{\SubmissionDate}{\todoText{dd/mm/yyyy}}
+\newcommand{\ClassName}{MSA37HCM}
+\newcommand{\GroupName}{Đỗ Hoàng Tỷ Phú -- 25MS23327}
+\newcommand{\InstructorName}{Lê Thanh Tùng}
+\newcommand{\SemesterName}{Summer 2026}
+\newcommand{\SubmissionDate}{15/08/2026}
 
 % ---------- Background commands ----------
 \newcommand{\SetCoverBackground}{%
@@ -873,10 +873,12 @@ một số epoch cho trước. Chi tiết siêu tham số ở chương kế ti�
 Hạng mục & Thông tin \\
 \midrule
 Nền tảng huấn luyện & Kaggle Notebooks, chế độ Save \& Run All (chạy nền) \\
-GPU & \todoText{Ghi rõ T4 x2 hay P100 --- chạy cell in môi trường ở mục 9 của KAGGLE.md} \\
+GPU & NVIDIA Tesla T4 $\times$ 2 (16\,GB VRAM mỗi GPU) \\
 VRAM đỉnh đo được & PhoBERT 3,98\,GB; XLM-R large 13,47\,GB \\
 Nền tảng phân tích & Máy cục bộ, CPU (notebook 05 không cần GPU) \\
-Python & \todoText{Phiên bản trên Kaggle} \\
+Môi trường Python & Kaggle Notebook image, tùy chọn ``Always use latest
+                    environment''. Phiên bản chính xác của Python và các thư viện
+                    không được ghi nhận tại thời điểm chạy --- xem mục Hạn chế \\
 Framework & PyTorch + Hugging Face Transformers \\
 Thư viện chính & \texttt{transformers}, \texttt{datasets}, \texttt{underthesea},
                  \texttt{scikit-learn}, \texttt{pandas}, \texttt{matplotlib} \\
@@ -1407,6 +1409,11 @@ thực tế nó không có giá trị sử dụng.
   \item \textbf{Số đo thời gian không chuẩn hóa.} Bốn mô hình chạy ở các phiên Kaggle khác
         nhau, có thể trên các loại GPU khác nhau; thời gian suy luận của TextCNN và BiLSTM
         chưa được đo.
+  \item \textbf{Chưa ghim phiên bản môi trường.} Các notebook chạy với tùy chọn ``Always
+        use latest environment'' của Kaggle, nên phiên bản Python, PyTorch và
+        \texttt{transformers} có thể thay đổi giữa các lần chạy và không được ghi lại.
+        Model ID, revision hash và seed đều đã được ghim, nhưng để tái lập hoàn toàn thì
+        cần ghim cả phiên bản thư viện --- đây là điểm cần bổ sung.
   \item \textbf{Chỉ đánh giá trên một bộ dữ liệu.} Không có bằng chứng về khả năng tổng
         quát hóa sang các bộ NLI tiếng Việt khác hay sang miền văn bản ngoài báo chí.
 \end{itemize}
