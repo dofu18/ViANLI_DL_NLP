@@ -449,7 +449,7 @@ Ngày truy cập & \todoText{dd/mm/yyyy} \\
 \section{Khám phá dữ liệu}
 
 Toàn bộ số liệu trong mục này được sinh tự động bởi \texttt{01\_eda.ipynb} và lưu ở
-\texttt{outputs/logs/eda.json}.
+\texttt{outputs/\allowbreak logs/\allowbreak eda.json}.
 
 \subsection{Phân bố nhãn và mốc dưới}
 
@@ -614,18 +614,19 @@ phải thực sự đối chiếu ngữ nghĩa giữa tiền đề và giả thu
 
 \begin{table}[H]
 \centering
+\small
 \caption{Các bước tiền xử lý}
-\begin{tabularx}{\textwidth}{@{}L{3.0cm}Y L{3.6cm}@{}}
+\begin{tabularx}{\textwidth}{@{}L{2.7cm}Y L{3.9cm}@{}}
 \toprule
 \textbf{Bước} & \textbf{Mô tả} & \textbf{Tham số chính} \\
 \midrule
 Làm sạch & Điền chuỗi rỗng cho ô thiếu; không loại bỏ mẫu nào &
   --- \\
 Chuẩn hóa & Chuẩn hóa Unicode NFC, gộp khoảng trắng liên tiếp. Áp dụng cho cả bốn mô hình &
-  \texttt{unicodedata.normalize("NFC")} \\
+  \texttt{normalize(}\allowbreak\texttt{"NFC")} \\
 Tách từ tiếng Việt & Nhánh CNN/RNN và PhoBERT: tách từ bằng \texttt{underthesea}.
   XLM-R không dùng vì SentencePiece &
-  \texttt{word\_tokenize(format="text")} \\
+  \texttt{word\_tokenize(}\allowbreak\texttt{format="text")} \\
 Tokenization & Nhánh CNN/RNN: word-level, vocab 9.503 token xây từ \textbf{riêng tập
   train}. Nhánh Transformer: tokenizer đi kèm checkpoint &
   \texttt{min\_freq = 2} \\
